@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper">
+
+    <select id="findKeywords" resultType="entity.service.Keyword">
+        select *
+        from kotoumi_keyword
+        where group_id = #{groupId}
+        and enable = 1
+    </select>
+
+    <select id="findKeywordById" resultType="entity.service.Keyword">
+        select *
+        from kotoumi_keyword
+        where group_id = #{groupId}
+          and id = #{id}
+          and enable = 1
+        limit 1
+    </select>
+
+    <select id="findKeywordByKey" resultType="entity.service.Keyword">
+        select *
+        from kotoumi_keyword
+        where group_id = #{groupId}
+          <if test="key != ''">
+              and keyword = #{key}
+          </if>
+          and enable = 1
+        order by id
+        limit #{start}, 5
+    </select>
+
+    <select id="countKeywordByKey" resultType="Integer">
+        select count(1)
+        from kotoumi_keyword
+        where group_id = #{groupId}
+        <if test="key != ''">
+            and keyword = #{key}
+        </if>
+        and enable = 1
+    </select>
+
+    <insert id="addKeyword" parameterType="entity.service.Keyword">
+        insert into kotoumi_keyword
+        set group_id = #{groupId},
+            creator_id = #{creatorId},
+            keyword = #{keyword},
+            response = #{response},
+            enable = 1
+    </insert>
+
+    <select id="getId" resultType="Long">
+        select max(id)
+        from kotoumi_keyword
+        where group_id = #{groupId}
+          and enable = 1
+    </select>
+
+    <update id="deleteKeyword">
+        update kotoumi_keyword
+        set enable = 0
+        where id = #{id}
+          and group_id = #{groupId}
+    </update>
+
+</mapper>

@@ -21,3 +21,14 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# User ignore
+logs/
+output/
+*.iml
+deviceInfo.json
+src/main/resources/mybatis-config.xml
+src/main/resources/config.properties
+src/main/java/loader/MyLoader.kt
+.idea/
+.DS_Store

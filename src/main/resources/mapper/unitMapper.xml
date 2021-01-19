@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper">
+
+    <select id="findUnitByNumber" resultType="entity.service.Unit">
+        select *
+        from unit_m_cn
+        where unit_m_cn.unit_number = #{unitNumber}
+        limit 1
+    </select>
+
+    <select id="findUnitByName" resultType="entity.service.Unit">
+        select *
+        from unit_m_cn
+        left join kotoumi_tags
+        on unit_m_cn.unit_number = kotoumi_tags.unit_number
+        where eponym like concat('%', #{unitName}, '%')
+        <if test="name != null">
+            or eponym like concat('%', #{unitTag}, '%') and unit_m_cn.name = #{name}
+        </if>
+        or kotoumi_tags.tags like concat('%', #{unitName}, '%')
+        <if test="name != null">
+            or kotoumi_tags.tags like concat('%', #{unitTag}, '%') and unit_m_cn.name = #{name}
+        </if>
+        order by unit_id
+        limit 10
+    </select>
+
+</mapper>

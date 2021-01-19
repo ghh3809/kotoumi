@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper">
+
+    <select id="findDailyById" resultType="entity.service.Daily">
+        select *
+        from kotoumi_daily
+        where group_id = #{groupId}
+          and user_id = #{userId}
+          and date(create_time) = #{day}
+    </select>
+
+    <insert id="addDaily">
+        insert into kotoumi_daily
+        set group_id = #{groupId},
+            user_id = #{userId},
+            sign_in_result = 0,
+            draw_result = 0,
+            divine_result = 0
+    </insert>
+
+    <update id="updateDailySignIn">
+        update kotoumi_daily
+        set sign_in_result = #{signInResult}
+        where group_id = #{groupId}
+          and user_id = #{userId}
+          and date(create_time) = #{day}
+    </update>
+
+    <update id="updateDailyDraw">
+        update kotoumi_daily
+        set draw_result = #{drawResult}
+        where group_id = #{groupId}
+          and user_id = #{userId}
+          and date(create_time) = #{day}
+    </update>
+
+    <update id="updateDailyDivine">
+        update kotoumi_daily
+        set divine_result = #{divineResult}
+        where group_id = #{groupId}
+          and user_id = #{userId}
+          and date(create_time) = #{day}
+    </update>
+
+    <select id="getSignInDays" resultType="Integer">
+        select sum(IF(sign_in_result != 0, 1, 0))
+        from kotoumi_daily
+        where group_id = #{groupId}
+          and user_id = #{userId}
+    </select>
+
+    <insert id="createPrimogems">
+        insert into kotoumi_genshin_primogems
+        set user_id = #{userId},
+            primogems = #{primogems},
+            starlight = 0
+    </insert>
+
+    <update id="addPrimogems">
+        update kotoumi_genshin_primogems
+        set primogems = primogems + #{primogems},
+            starlight = starlight + #{starlight}
+        where user_id = #{userId}
+    </update>
+
+    <select id="getPrimogems"  resultType="entity.service.PrimoGems">
+        select primogems, starlight
+        from kotoumi_genshin_primogems
+        where user_id = #{userId}
+        limit 1
+    </select>
+
+    <select id="getWishHistory" resultType="entity.service.GenshinUnit">
+        select kotoumi_genshin_unit.*
+        from kotoumi_genshin_wish
+        inner join kotoumi_genshin_unit
+        on kotoumi_genshin_wish.unit_id = kotoumi_genshin_unit.id
+        where kotoumi_genshin_wish.user_id = #{userId}
+        <choose>
+            <when test="wishEventId != 0">
+                and kotoumi_genshin_wish.wish_event_id = #{wishEventId}
+            </when>
+            <otherwise>
+                and kotoumi_genshin_unit.rarity >= 4
+                <if test="unitType != 0">
+                    and kotoumi_genshin_unit.unit_type = #{unitType}
+                </if>
+            </otherwise>
+        </choose>
+        order by kotoumi_genshin_wish.id desc
+    </select>
+
+    <select id="getUnits" resultType="entity.service.GenshinUnit">
+        select *
+        from kotoumi_genshin_unit
+    </select>
+
+    <insert id="addWish">
+        insert into kotoumi_genshin_wish (
+            user_id, wish_event_id, unit_id
+        ) values
+        <foreach collection="wishResult" item="unit" separator=",">
+            (#{userId}, #{wishEventId}, #{unit.id})
+        </foreach>
+    </insert>
+
+</mapper>
