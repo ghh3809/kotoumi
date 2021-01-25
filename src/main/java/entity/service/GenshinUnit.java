@@ -1,5 +1,7 @@
 package entity.service;
 
+import kotlin.jvm.Transient;
+
 /**
  * @author guohaohao
  */
@@ -22,8 +24,13 @@ public class GenshinUnit {
      */
     private Integer rarity;
     /**
+     * 是否是up角色
+     */
+    private Integer isUp;
+    /**
      * 精炼数/命之座数
      */
+    @Transient
     private int level;
 
     public GenshinUnit() {
@@ -34,6 +41,7 @@ public class GenshinUnit {
         this.unitType = other.unitType;
         this.unitName = other.unitName;
         this.rarity = other.rarity;
+        this.isUp = other.isUp;
         this.level = other.level;
     }
 
@@ -82,5 +90,13 @@ public class GenshinUnit {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public Integer getIsUp() {
+        return isUp;
+    }
+
+    public void setIsUp(Integer isUp) {
+        this.isUp = isUp;
     }
 }

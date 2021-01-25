@@ -5,6 +5,8 @@ import entity.service.GenshinUnit;
 import entity.service.Keyword;
 import entity.service.PrimoGems;
 import entity.service.Unit;
+import entity.service.WishEvent;
+import entity.service.WishSummary;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -315,14 +317,31 @@ public class Dao {
      * @param userId 用户ID
      * @param wishEventId 祈愿池子id，1（角色）/2（武器）/3（混合）
      * @param unitType 类型，0（不区分）/1（角色）/2（武器）
+     * @param limit 限制数，0为不限
      * @return 抽卡成员列表
      */
-    public static List<GenshinUnit> getWishHistory(long userId, int wishEventId, int unitType) {
+    public static List<GenshinUnit> getWishHistoryForSummary(long userId, int unitType) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            hashMap.put("unitType", unitType);
+            return session.selectList("getWishHistoryForSummary", hashMap);
+        }
+    }
+
+    /**
+     * 查询抽卡历史
+     * @param userId 用户ID
+     * @param wishEventId 祈愿池子id，1（角色）/2（武器）/3（混合）
+     * @param limit 限制数，0为不限
+     * @return 抽卡成员列表
+     */
+    public static List<GenshinUnit> getWishHistory(long userId, int wishEventId, int limit) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("userId", userId);
             hashMap.put("wishEventId", wishEventId);
-            hashMap.put("unitType", unitType);
+            hashMap.put("limit", limit);
             return session.selectList("getWishHistory", hashMap);
         }
     }
@@ -331,9 +350,10 @@ public class Dao {
      * 获得所有可获得的卡
      * @return 成员列表
      */
-    public static List<GenshinUnit> getUnits() {
+    public static List<GenshinUnit> getUnits(int wishEventId) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("wishEventId", wishEventId);
             return session.selectList("getUnits", hashMap);
         }
     }
@@ -352,6 +372,29 @@ public class Dao {
             hashMap.put("wishResult", wishResult);
             session.insert("addWish", hashMap);
             session.commit();
+        }
+    }
+
+    /**
+     * 获得所有祈愿池
+     * @return 祈愿池
+     */
+    public static List<WishEvent> getWishEvents() {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            return session.selectList("getWishEvents", hashMap);
+        }
+    }
+
+    /**
+     * 获得单人祈愿统计
+     * @return 祈愿统计
+     */
+    public static WishSummary getWishSummary(long userId) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            return session.selectOne("getWishSummary", hashMap);
         }
     }
 

@@ -11,7 +11,9 @@ import entity.service.MultiTurnStatus;
 import entity.service.PrimoGems;
 import entity.service.Request;
 import entity.service.Unit;
+import entity.service.WishEvent;
 import entity.service.WishStatus;
+import entity.service.WishSummary;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.At;
@@ -43,6 +45,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class DialogService {
 
+    private static final long ADMIN_QQ = 1146875163L;
     /**
      * 图片存储位置
      */
@@ -62,7 +65,8 @@ public class DialogService {
     private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("^\\d{1,4}$");
     private static final Pattern KEYWORD_ADD_PATTERN = Pattern.compile("^问[ _](.+?)[ _]答[ _](.+)$", Pattern.DOTALL);
     private static final Pattern KEYWORD_QUERY_PATTERN = Pattern.compile("^(.*?)(_起始_\\d+)?$");
-    private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连).*(标准|武器|角色)池.*$");
+    private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连)(.*?)池.*$");
+    private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.*?)_(.*)$");
     /**
      * query关键字
      */
@@ -82,6 +86,8 @@ public class DialogService {
     private static final String WEAPON_KEYWORD = "我的武器";
     private static final String TRANSFORM_KEYWORD = "星辉全部换原石";
     private static final String PROB_KEYWORD = "概率说明";
+    private static final String CURRENT_WISH_KEYWORD = "当前卡池";
+    private static final String MY_SUMMARY_KEYWORD = "我的统计";
     /**
      * 回复关键字
      */
@@ -96,17 +102,18 @@ public class DialogService {
             + "删除词库：删除词库{词库ID/关键词}\n"
             + "【抽卡】\n"
             + "抽卡：抽卡/10连[标准池/角色池/武器池]\n"
-            + "查看拥有角色（仅5星）：我的角色\n"
-            + "查看拥有武器（仅5星）：我的武器\n"
+            + "查看拥有角色：我的角色\n"
+            + "查看拥有武器：我的武器\n"
+            + "查看祈愿统计：我的统计\n"
             + "星辉换原石：星辉全部换原石\n"
+            + "查看当前开放卡池：当前卡池\n"
             + "获取详细概率说明：概率说明\n"
             + "【关于】\n"
-            + "海鸟阁小机器人，请各位善待，如有需求或问题，欢迎随时反馈管理组！\n"
-            + "SIF数据来源：查卡器(https://card.niconi.no.ni)";
+            + "海鸟阁小机器人，请各位善待，如有需求或问题，欢迎随时反馈管理组！";
     private static final String PROB_RESPONSE = "模拟抽卡概率遵循以下原则：\n"
-            + "4星：默认概率为5.1%，若前9次祈愿未获得4星及以上角色/装备，概率更新为99.4%\n"
+            + "4星：默认概率为5.1%，若前7次祈愿未获得4星及以上角色/装备，概率从第8抽开始线性增加，直至第10次时提升至100%\n"
             + "5星：默认概率为0.6%，若前73次祈愿未获得5星角色/装备，概率从第74次开始线性增加，直至第90次时提升至100%\n"
-            + "4星综合概率：13.238%，5星综合概率：1.604%\n"
+            + "4星综合概率：13.00%，5星综合概率：1.604%\n"
             + "(注：角色/武器池均按90抽保底5星进行计算）";
     /**
      * 抽签结果列表
@@ -177,6 +184,7 @@ public class DialogService {
         // 搜索内置关键字
         Matcher addKeywordMatcher = KEYWORD_ADD_PATTERN.matcher(request.getQuery());
         Matcher wishMatcher = WISH_PATTERN.matcher(request.getQuery());
+        Matcher addPrimogemsMatcher = ADD_PRIMOGEMS_PATTERN.matcher(request.getQuery());
         if (request.getQuery().equals(HELP_KEYWORD)) {
             // 帮助
             return help();
@@ -225,6 +233,15 @@ public class DialogService {
         } else if (request.getQuery().equals(PROB_KEYWORD)) {
             // 概率说明
             return prob(request);
+        } else if (addPrimogemsMatcher.find()) {
+            // 增加原石
+            return addPrimogems(request, addPrimogemsMatcher);
+        } else if (request.getQuery().equals(CURRENT_WISH_KEYWORD)) {
+            // 当前卡池
+            return currentWish(request);
+        } else if (request.getQuery().equals(MY_SUMMARY_KEYWORD)) {
+            // 抽卡统计
+            return mySummary(request);
         }
 
         // 群自定义词库
@@ -394,6 +411,7 @@ public class DialogService {
      * @return 返回
      */
     private static MessageChain wish(Request request, Matcher matcher) {
+
         log.info("Wish found");
         // 预处理
         String wishCountStr = matcher.group(1);
@@ -402,12 +420,6 @@ public class DialogService {
             wishCount = 1;
         }
         String wishTypeStr = matcher.group(2);
-        int wishType = 3;
-        if ("角色".equals(wishTypeStr)) {
-            wishType = 1;
-        } else if ("武器".equals(wishTypeStr)) {
-            wishType = 2;
-        }
 
         // 校验原石数量
         PrimoGems primoGemsInfo = Dao.getPrimogems(request.getFrom());
@@ -421,7 +433,10 @@ public class DialogService {
 
         // 抽卡与结果转义
         WishStatus wishStatus = new WishStatus();
-        List<GenshinUnit> result = WishHelper.wish(wishCount, wishType, request.getFrom(), wishStatus);
+        List<GenshinUnit> result = WishHelper.wish(wishCount, wishTypeStr, request.getFrom(), wishStatus);
+        if (result == null) {
+            return EmptyMessageChain.INSTANCE.plus("\n抽卡失败，当前卡池不存在！");
+        }
         Dao.addPrimogems(request.getFrom(), - wishCount * 160, wishStatus.getTotalStarLight());
         StringBuilder stringBuilder = new StringBuilder("\n抽卡成功！花费原石：")
                 .append(wishCount * 160)
@@ -465,7 +480,7 @@ public class DialogService {
         stringBuilder = new StringBuilder("\n");
         stringBuilder.append("获得星辉数：").append(wishStatus.getTotalStarLight()).append("\n");
         stringBuilder.append("距离下次4★保底还剩：").append(10 - wishStatus.getStar4Count()).append("抽\n");
-        stringBuilder.append("距离下次5★保底还剩：").append(90 - wishStatus.getStar5Count()).append("抽");
+        stringBuilder.append("距离下次5★保底还剩：").append(wishStatus.getMaxFiveCount() - wishStatus.getStar5Count()).append("抽");
 
         return messageChain.plus(stringBuilder);
     }
@@ -489,7 +504,7 @@ public class DialogService {
 
         // 获取详情
         log.info("My character found");
-        List<GenshinUnit> wishHistory = Dao.getWishHistory(request.getFrom(), 0, 1);
+        List<GenshinUnit> wishHistory = Dao.getWishHistoryForSummary(request.getFrom(), 1);
         List<GenshinUnit> wishSummary = WishHelper.getUnitSummary(wishHistory);
 
         // 拼接字符串
@@ -504,13 +519,13 @@ public class DialogService {
                 stringBuilder5.append(++ star5Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(6命)" : ("(" + (unit.getLevel() - 1) + "命)\n"));
+                        .append(WishHelper.isOverflow(unit) ? "(6命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
                 star5Flag = true;
             } else {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(6命)" : ("(" + (unit.getLevel() - 1) + "命)\n"));
+                        .append(WishHelper.isOverflow(unit) ? "(6命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
                 star4Flag = true;
             }
         }
@@ -537,7 +552,7 @@ public class DialogService {
 
         // 获取详情
         log.info("My weapon found");
-        List<GenshinUnit> wishHistory = Dao.getWishHistory(request.getFrom(), 0, 2);
+        List<GenshinUnit> wishHistory = Dao.getWishHistoryForSummary(request.getFrom(), 2);
         List<GenshinUnit> wishSummary = WishHelper.getUnitSummary(wishHistory);
 
         // 拼接字符串
@@ -552,13 +567,13 @@ public class DialogService {
                 stringBuilder5.append(++ star5Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(精炼5)" : ("(精炼" + unit.getLevel() + ")\n"));
+                        .append(WishHelper.isOverflow(unit) ? "(精炼5)\n" : ("(精炼" + unit.getLevel() + ")\n"));
                 star5Flag = true;
             } else {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(精炼5)" : ("(精炼" + unit.getLevel() + ")\n"));
+                        .append(WishHelper.isOverflow(unit) ? "(精炼5)\n" : ("(精炼" + unit.getLevel() + ")\n"));
                 star4Flag = true;
             }
         }
@@ -602,6 +617,78 @@ public class DialogService {
     private static MessageChain prob(Request request) {
         log.info("Prob found");
         return EmptyMessageChain.INSTANCE.plus(PROB_RESPONSE);
+    }
+
+    /**
+     * 星辉换原石
+     * @param request 请求
+     * @return 返回
+     */
+    private static MessageChain addPrimogems(Request request, Matcher matcher) {
+        log.info("Add Primogems found");
+        if (request.getFrom() != ADMIN_QQ) {
+            return EmptyMessageChain.INSTANCE.plus("无权访问！");
+        }
+        long userId = Long.parseLong(matcher.group(1));
+        int amount = Integer.parseInt(matcher.group(2));
+        Dao.addPrimogems(userId, amount, 0);
+        int current = Dao.getPrimogems(userId).getPrimogems();
+        return EmptyMessageChain.INSTANCE.plus("氪金成功！账号：" + userId + ", 添加原石数：" + amount
+                + ", 剩余原石数：" + current);
+    }
+
+    /**
+     * 查看当前开放的卡池
+     * @param request 请求
+     * @return 返回
+     */
+    private static MessageChain currentWish(Request request) {
+        log.info("Current Wish found");
+        List<WishEvent> wishEventList = Dao.getWishEvents();
+        StringBuilder stringBuilder = new StringBuilder("当前开放的卡池：\n");
+        for (WishEvent wishEvent : wishEventList) {
+            stringBuilder.append("【")
+                    .append(wishEvent.getWishEventName())
+                    .append("池】\n五星范围：")
+                    .append(wishEvent.getUnitFiveRegion())
+                    .append("\n四星范围：")
+                    .append(wishEvent.getUnitFourRegion())
+                    .append("\n结束时间：")
+                    .append(wishEvent.getEndTime())
+                    .append("\n");
+        }
+        stringBuilder.append("请直接输入“抽卡/10连xx池”进行抽卡");
+        return EmptyMessageChain.INSTANCE.plus(stringBuilder);
+    }
+
+    /**
+     * 查看祈愿统计
+     * @param request 请求
+     * @return 返回
+     */
+    private static MessageChain mySummary(Request request) {
+        log.info("My Summary found");
+        WishSummary wishSummary = Dao.getWishSummary(request.getFrom());
+        StringBuilder stringBuilder = new StringBuilder("\n当前总抽卡次数：")
+                .append(wishSummary.getTotalCount())
+                .append("\n抽到的五星数：")
+                .append(wishSummary.getStarFiveCount())
+                .append("，其中角色")
+                .append(wishSummary.getStarFiveCharacterCount())
+                .append("个，武器")
+                .append(wishSummary.getStarFiveWeaponCount())
+                .append("个\n五星出货率：")
+                .append(String.format("%.2f", wishSummary.getStarFiveCount() * 100.0 / wishSummary.getTotalCount()))
+                .append("%\n抽到的四星数：")
+                .append(wishSummary.getStarFourCount())
+                .append("，其中角色")
+                .append(wishSummary.getStarFourCharacterCount())
+                .append("个，武器")
+                .append(wishSummary.getStarFourWeaponCount())
+                .append("个\n四星出货率：")
+                .append(String.format("%.2f", wishSummary.getStarFourCount() * 100.0 / wishSummary.getTotalCount()))
+                .append("%");
+        return EmptyMessageChain.INSTANCE.plus(stringBuilder);
     }
 
     /**

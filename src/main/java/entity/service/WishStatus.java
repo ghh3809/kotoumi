@@ -14,14 +14,24 @@ public class WishStatus {
      */
     private int star5Count;
     /**
+     * 是否下一个必为up
+     */
+    private boolean mustUp;
+    /**
      * 星辉总数
      */
     private int totalStarLight;
+    /**
+     * 五星保底需要的抽数
+     */
+    private int maxFiveCount;
 
     public WishStatus() {
         this.star4Count = 0;
         this.star5Count = 0;
+        this.mustUp = false;
         this.totalStarLight = 0;
+        this.maxFiveCount = 90;
     }
 
     public int getStar4Count() {
@@ -46,5 +56,21 @@ public class WishStatus {
 
     public void setTotalStarLight(int totalStarLight) {
         this.totalStarLight = totalStarLight;
+    }
+
+    public boolean isMustUp() {
+        return mustUp;
+    }
+
+    public void setMustUp(boolean mustUp) {
+        this.mustUp = mustUp;
+    }
+
+    public int getMaxFiveCount() {
+        return maxFiveCount;
+    }
+
+    public void setMaxFiveCount(int maxFiveCount) {
+        this.maxFiveCount = maxFiveCount;
     }
 }

@@ -120,7 +120,7 @@ public class DialogueRequest extends Request {
         } else {
             dialogueRequest.botSession = String.format("{\"session_id\":\"%s\"}", sessionId);
         }
-        dialogueRequest.request = new Request(userId, query, true);
+        dialogueRequest.request = new Request(userId, query, false);
         return dialogueRequest;
     }
 

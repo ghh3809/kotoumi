@@ -3,6 +3,7 @@ package utils;
 import com.alibaba.fastjson.JSON;
 import dao.Dao;
 import entity.service.GenshinUnit;
+import entity.service.WishEvent;
 import entity.service.WishStatus;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,50 +20,52 @@ import java.util.Random;
 @Slf4j
 public class WishHelper {
 
-    public static final Random RAMDOM = new Random();
-    public static final List<GenshinUnit> STAR_3_WEAPON = new ArrayList<>();
-    public static final List<GenshinUnit> STAR_4_WEAPON = new ArrayList<>();
-    public static final List<GenshinUnit> STAR_5_WEAPON = new ArrayList<>();
-    public static final List<GenshinUnit> STAR_4_CHARACTER = new ArrayList<>();
-    public static final List<GenshinUnit> STAR_5_CHARACTER = new ArrayList<>();
-
-    static {
-        List<GenshinUnit> allUnits = Dao.getUnits();
-        log.info("Load units: {}", allUnits.size());
-        for (GenshinUnit unit : allUnits) {
-            if (unit.getRarity() == 3) {
-                STAR_3_WEAPON.add(unit);
-            } else if (unit.getRarity() == 4) {
-                if (unit.getUnitType() == 1) {
-                    STAR_4_CHARACTER.add(unit);
-                } else {
-                    STAR_4_WEAPON.add(unit);
-                }
-            } else {
-                if (unit.getUnitType() == 1) {
-                    STAR_5_CHARACTER.add(unit);
-                } else {
-                    STAR_5_WEAPON.add(unit);
-                }
-            }
-        }
-    }
+    private static final Random RANDOM = new Random();
+    /**
+     * 祈愿类型，1为90抽保底无up池
+     */
+    private static final int WISH_TYPE_STANDARD = 1;
+    /**
+     * 祈愿类型，2为80抽保底武器up（75%）池
+     */
+    private static final int WISH_TYPE_WEAPON = 2;
+    /**
+     * 祈愿类型，3为90抽保底角色up（50%）池且有大保底
+     */
+    private static final int WISH_TYPE_CHARACTER = 3;
 
     /**
      * 进行祈愿
      * @param wishCount 祈愿次数，1/10
-     * @param wishType 祈愿类型，1（角色）/2（武器）/3（混合）
+     * @param wishTypeStr 祈愿名称，不包含“池”
      * @param userId 用户ID
+     * @param wishStatus 空的祈愿状态，会被重置
      * @return 祈愿结果
      */
-    public static List<GenshinUnit> wish(int wishCount, int wishType, long userId, WishStatus wishStatus) {
+    public static List<GenshinUnit> wish(int wishCount, String wishTypeStr, long userId, WishStatus wishStatus) {
+
+        // 获取所有祈愿池
+        WishEvent currentEvent = null;
+        List<WishEvent> wishEventList = Dao.getWishEvents();
+        for (WishEvent wishEvent : wishEventList) {
+            if (wishEvent.getWishEventName().equals(wishTypeStr)) {
+                currentEvent = wishEvent;
+            }
+        }
+        if (currentEvent == null) {
+            log.info("Wish event name not match!");
+            return null;
+        }
+
+        // 获取当前祈愿池可选角色
+        WishUnitList wishUnitList = getWishUnitList(currentEvent);
+
         // 获取当前池子祈愿状态，更新保底次数
-        List<GenshinUnit> wishHistory = Dao.getWishHistory(userId, wishType, 0);
-        updateWishStatus(wishHistory, wishStatus);
-        Collections.reverse(wishHistory);
+        List<GenshinUnit> wishHistory = Dao.getWishHistory(userId, currentEvent.getId(), 90);
+        updateWishStatus(wishHistory, wishStatus, currentEvent);
 
         // 获取总祈愿状态，获得命座情况
-        List<GenshinUnit> allHistory = Dao.getWishHistory(userId, 0, 0);
+        List<GenshinUnit> allHistory = Dao.getWishHistoryForSummary(userId, 0);
         Map<Long, Integer> summary = getSummary(allHistory);
 
         // 祈愿
@@ -70,37 +73,32 @@ public class WishHelper {
         for (int i = 0; i < wishCount; i ++) {
 
             // 获取抽卡概率
-            double nextProb4 = getNextProb4(wishStatus);
-            double nextProb5 = getNextProb5(wishStatus);
-            double rand = RAMDOM.nextDouble();
+            double nextProb4 = getNextProb4(wishStatus, currentEvent.getWishType());
+            double nextProb5 = getNextProb5(wishStatus, currentEvent.getWishType());
+            double rand = RANDOM.nextDouble();
             GenshinUnit unit;
 
-            // 进行抽卡
+            // 进行抽卡，并更新抽卡状态
             if (rand < nextProb5) {
                 // 抽到五星
-                List<GenshinUnit> available = STAR_5_CHARACTER;
-                if (wishType == 2 || (wishType == 3 && RAMDOM.nextDouble() < 0.5)) {
-                    available = STAR_5_WEAPON;
-                }
-                unit = chooseOne(available);
+                unit = chooseOne(5, wishStatus, wishUnitList, currentEvent.getWishType());
 
                 // 更新抽卡状态
                 wishStatus.setStar5Count(0);
                 wishStatus.setStar4Count(0);
+                if (currentEvent.getWishType() == WISH_TYPE_CHARACTER) {
+                    wishStatus.setMustUp(unit.getIsUp() != 1);
+                }
             } else if (rand < nextProb4 + nextProb5) {
                 // 抽到四星
-                List<GenshinUnit> available = STAR_4_CHARACTER;
-                if (wishType == 2 || (wishType == 3 && RAMDOM.nextDouble() < 0.5)) {
-                    available = STAR_4_WEAPON;
-                }
-                unit = chooseOne(available);
+                unit = chooseOne(4, wishStatus, wishUnitList, currentEvent.getWishType());
 
                 // 更新抽卡状态
                 wishStatus.setStar5Count(wishStatus.getStar5Count() + 1);
                 wishStatus.setStar4Count(0);
             } else {
                 // 抽到三星
-                unit = chooseOne(STAR_3_WEAPON);
+                unit = chooseOne(3, wishStatus, wishUnitList, currentEvent.getWishType());
 
                 // 更新抽卡状态
                 wishStatus.setStar5Count(wishStatus.getStar5Count() + 1);
@@ -134,7 +132,8 @@ public class WishHelper {
                     rand, JSON.toJSONString(unit));
         }
 
-        Dao.addWish(userId, wishType, wishResult);
+        Dao.addWish(userId, currentEvent.getId(), wishResult);
+        Collections.reverse(wishHistory);
         wishHistory.addAll(wishResult);
         return wishHistory;
     }
@@ -196,7 +195,12 @@ public class WishHelper {
      * 更新祈愿状态
      * @param wishHistory 祈愿历史
      */
-    private static void updateWishStatus(List<GenshinUnit> wishHistory, WishStatus wishStatus) {
+    private static void updateWishStatus(List<GenshinUnit> wishHistory, WishStatus wishStatus, WishEvent wishEvent) {
+
+        if (wishEvent.getWishType() == WISH_TYPE_WEAPON) {
+            wishStatus.setMaxFiveCount(80);
+        }
+
         int star4Count = 0;
         int star5Count = 0;
         boolean flag = false;
@@ -212,6 +216,11 @@ public class WishHelper {
             } else {
                 wishStatus.setStar4Count(star4Count);
                 wishStatus.setStar5Count(star5Count);
+                if (wishEvent.getWishType() == WISH_TYPE_CHARACTER) {
+                    if (genshinUnit.getIsUp() == 0) {
+                        wishStatus.setMustUp(true);
+                    }
+                }
                 return;
             }
         }
@@ -224,8 +233,20 @@ public class WishHelper {
      * @param wishStatus 祈愿状态
      * @return 4星概率
      */
-    private static double getNextProb4(WishStatus wishStatus) {
-        return wishStatus.getStar4Count() == 9 ? (1 - getNextProb5(wishStatus)) : 0.051;
+    public static double getNextProb4(WishStatus wishStatus, int wishType) {
+        if (wishType == WISH_TYPE_WEAPON) {
+            if (wishStatus.getStar4Count() <= 5) {
+                return 0.06;
+            } else {
+                return 0.06 + 0.94 * (wishStatus.getStar4Count() - 5) / 4;
+            }
+        } else {
+            if (wishStatus.getStar4Count() <= 6) {
+                return 0.051;
+            } else {
+                return 0.051 + 0.949 * (wishStatus.getStar4Count() - 6) / 3;
+            }
+        }
     }
 
     /**
@@ -233,21 +254,146 @@ public class WishHelper {
      * @param wishStatus 祈愿状态
      * @return 5星概率
      */
-    private static double getNextProb5(WishStatus wishStatus) {
-        if (wishStatus.getStar5Count() <= 72) {
-            return 0.006;
+    public static double getNextProb5(WishStatus wishStatus, int wishType) {
+        if (wishType == WISH_TYPE_WEAPON) {
+            if (wishStatus.getStar5Count() <= 62) {
+                return 0.007;
+            } else {
+                return 0.007 + 0.993 * (wishStatus.getStar5Count() - 62) / 17;
+            }
         } else {
-            return 0.006 + 0.994 * (wishStatus.getStar5Count() - 72) / 17;
+            if (wishStatus.getStar5Count() <= 72) {
+                return 0.006;
+            } else {
+                return 0.006 + 0.994 * (wishStatus.getStar5Count() - 72) / 17;
+            }
         }
     }
 
     /**
      * 随机选择一个
-     * @param available 可选范围
+     * @param rarity 稀有度
      * @return 选择结果
      */
-    private static GenshinUnit chooseOne(List<GenshinUnit> available) {
-        return new GenshinUnit(available.get(RAMDOM.nextInt(available.size())));
+    private static GenshinUnit chooseOne(int rarity, WishStatus wishStatus, WishUnitList wishUnitList, int wishType) {
+
+        // 获取up概率
+        double upProb = 0;
+        if (wishType == WISH_TYPE_CHARACTER) {
+            upProb = 0.5;
+        } else if (wishType == WISH_TYPE_WEAPON) {
+            upProb = 0.75;
+        }
+
+        List<GenshinUnit> available;
+        if (rarity == 5) {
+            if (wishStatus.isMustUp() || RANDOM.nextDouble() < upProb) {
+                available = wishUnitList.getUpStarFiveObject();
+            } else {
+                available = wishUnitList.getStarFiveObject();
+            }
+        } else if (rarity == 4) {
+            if (RANDOM.nextDouble() < upProb) {
+                available = wishUnitList.getUpStarFourObject();
+            } else {
+                available = wishUnitList.getStarFourObject();
+            }
+        } else {
+            available = wishUnitList.getStarThreeObject();
+        }
+        return new GenshinUnit(available.get(RANDOM.nextInt(available.size())));
+    }
+
+    /**
+     * 获取祈愿池对象列表
+     * @param wishEvent 祈愿池
+     * @return 对象列表
+     */
+    private static WishUnitList getWishUnitList(WishEvent wishEvent) {
+
+        List<GenshinUnit> starThreeObject = new ArrayList<>();
+        List<GenshinUnit> starFourObject = new ArrayList<>();
+        List<GenshinUnit> starFiveObject = new ArrayList<>();
+        List<GenshinUnit> upStarFiveObject = new ArrayList<>();
+        List<GenshinUnit> upStarFourObject = new ArrayList<>();
+
+        List<GenshinUnit> allUnits = Dao.getUnits(wishEvent.getId());
+        for (GenshinUnit unit : allUnits) {
+            if (unit.getRarity() == 3) {
+                starThreeObject.add(unit);
+            } else if (unit.getRarity() == 4) {
+                if (unit.getIsUp() == 1) {
+                    upStarFourObject.add(unit);
+                } else {
+                    starFourObject.add(unit);
+                }
+            } else if (unit.getRarity() == 5) {
+                if (unit.getIsUp() == 1) {
+                    upStarFiveObject.add(unit);
+                } else {
+                    starFiveObject.add(unit);
+                }
+            }
+        }
+
+        WishUnitList wishUnitList = new WishUnitList();
+        wishUnitList.setStarThreeObject(starThreeObject);
+        wishUnitList.setStarFourObject(starFourObject);
+        wishUnitList.setStarFiveObject(starFiveObject);
+        wishUnitList.setUpStarFiveObject(upStarFiveObject);
+        wishUnitList.setUpStarFourObject(upStarFourObject);
+        log.info("wishUnitList: {}", JSON.toJSONString(wishUnitList));
+        return wishUnitList;
+
+    }
+
+    private static class WishUnitList {
+
+        private List<GenshinUnit> starThreeObject = new ArrayList<>();
+        private List<GenshinUnit> starFourObject = new ArrayList<>();
+        private List<GenshinUnit> starFiveObject = new ArrayList<>();
+        private List<GenshinUnit> upStarFiveObject = new ArrayList<>();
+        private List<GenshinUnit> upStarFourObject = new ArrayList<>();
+
+        public List<GenshinUnit> getStarThreeObject() {
+            return starThreeObject;
+        }
+
+        public void setStarThreeObject(List<GenshinUnit> starThreeObject) {
+            this.starThreeObject = starThreeObject;
+        }
+
+        public List<GenshinUnit> getStarFourObject() {
+            return starFourObject;
+        }
+
+        public void setStarFourObject(List<GenshinUnit> starFourObject) {
+            this.starFourObject = starFourObject;
+        }
+
+        public List<GenshinUnit> getStarFiveObject() {
+            return starFiveObject;
+        }
+
+        public void setStarFiveObject(List<GenshinUnit> starFiveObject) {
+            this.starFiveObject = starFiveObject;
+        }
+
+        public List<GenshinUnit> getUpStarFiveObject() {
+            return upStarFiveObject;
+        }
+
+        public void setUpStarFiveObject(List<GenshinUnit> upStarFiveObject) {
+            this.upStarFiveObject = upStarFiveObject;
+        }
+
+        public List<GenshinUnit> getUpStarFourObject() {
+            return upStarFourObject;
+        }
+
+        public void setUpStarFourObject(List<GenshinUnit> upStarFourObject) {
+            this.upStarFourObject = upStarFourObject;
+        }
     }
 
 }

@@ -74,29 +74,48 @@
         limit 1
     </select>
 
-    <select id="getWishHistory" resultType="entity.service.GenshinUnit">
+    <select id="getWishHistoryForSummary" resultType="entity.service.GenshinUnit">
         select kotoumi_genshin_unit.*
-        from kotoumi_genshin_wish
+        from (
+            select *
+            from kotoumi_genshin_wish
+            where user_id = #{userId}
+        ) wish
         inner join kotoumi_genshin_unit
-        on kotoumi_genshin_wish.unit_id = kotoumi_genshin_unit.id
-        where kotoumi_genshin_wish.user_id = #{userId}
-        <choose>
-            <when test="wishEventId != 0">
-                and kotoumi_genshin_wish.wish_event_id = #{wishEventId}
-            </when>
-            <otherwise>
-                and kotoumi_genshin_unit.rarity >= 4
-                <if test="unitType != 0">
-                    and kotoumi_genshin_unit.unit_type = #{unitType}
-                </if>
-            </otherwise>
-        </choose>
-        order by kotoumi_genshin_wish.id desc
+        on wish.unit_id = kotoumi_genshin_unit.id
+        <if test="unitType != 0">
+            where kotoumi_genshin_unit.unit_type = #{unitType}
+        </if>
+    </select>
+
+    <select id="getWishHistory" resultType="entity.service.GenshinUnit">
+        select unit.*, map.is_up
+        from (
+            select *
+            from kotoumi_genshin_wish
+            where wish_event_id = #{wishEventId} and user_id = #{userId}
+        ) wish
+        inner join (
+            select *
+            from kotoumi_genshin_unit
+        ) unit
+        on wish.unit_id = unit.id
+        inner join (
+            select *
+            from kotoumi_genshin_wish_unit_map
+            where wish_event_id = #{wishEventId}
+        ) map
+        on wish.unit_id = map.unit_id
+        order by wish.id desc
+        limit #{limit}
     </select>
 
     <select id="getUnits" resultType="entity.service.GenshinUnit">
-        select *
-        from kotoumi_genshin_unit
+        select kotoumi_genshin_unit.*, kotoumi_genshin_wish_unit_map.is_up
+        from kotoumi_genshin_wish_unit_map
+        inner join kotoumi_genshin_unit
+        on kotoumi_genshin_wish_unit_map.unit_id = kotoumi_genshin_unit.id
+        where wish_event_id = ${wishEventId}
     </select>
 
     <insert id="addWish">
@@ -107,5 +126,27 @@
             (#{userId}, #{wishEventId}, #{unit.id})
         </foreach>
     </insert>
+
+    <select id="getWishEvents"  resultType="entity.service.WishEvent">
+        select *
+        from kotoumi_genshin_wish_event
+        where CURRENT_TIMESTAMP &gt; start_time and CURRENT_TIMESTAMP &lt; end_time
+        order by id
+    </select>
+
+    <select id="getWishSummary"  resultType="entity.service.WishSummary">
+        select
+            count(1) as total_count,
+            count(IF(kotoumi_genshin_unit.rarity = 4, 1, null)) as star_four_count,
+            count(IF(kotoumi_genshin_unit.rarity = 4 and kotoumi_genshin_unit.unit_type = 1, 1, null)) as star_four_character_count,
+            count(IF(kotoumi_genshin_unit.rarity = 4 and kotoumi_genshin_unit.unit_type = 2, 1, null)) as star_four_weapon_count,
+            count(IF(kotoumi_genshin_unit.rarity = 5, 1, null)) as star_five_count,
+            count(IF(kotoumi_genshin_unit.rarity = 5 and kotoumi_genshin_unit.unit_type = 1, 1, null)) as star_five_character_count,
+            count(IF(kotoumi_genshin_unit.rarity = 5 and kotoumi_genshin_unit.unit_type = 2, 1, null)) as star_five_weapon_count
+        from kotoumi_genshin_wish
+        inner join kotoumi_genshin_unit
+        on kotoumi_genshin_wish.unit_id = kotoumi_genshin_unit.id
+        where kotoumi_genshin_wish.user_id = #{userId}
+    </select>
 
 </mapper>
