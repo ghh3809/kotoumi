@@ -76,7 +76,7 @@ insert into kotoumi_genshin_unit values (2047, 2, '黑岩绯玉', 4);
 insert into kotoumi_genshin_unit values (2048, 2, '昭心', 4);
 insert into kotoumi_genshin_unit values (2049, 2, '四风原典', 5);
 insert into kotoumi_genshin_unit values (2050, 2, '天空之卷', 5);
-insert into kotoumi_genshin_unit values (2051, 2, '讨尘世之锁', 5);
+insert into kotoumi_genshin_unit values (2051, 2, '尘世之锁', 5);
 
 insert into kotoumi_genshin_wish_event values (1, '角色', '截止1.2版本所有上场过的5星角色', '截止1.2版本所有上场过的4星角色', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
 insert into kotoumi_genshin_wish_event values (2, '武器', '截止1.2版本所有上场过的5星武器', '截止1.2版本所有上场过的4星武器', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
@@ -109,6 +109,19 @@ insert into kotoumi_genshin_wish_unit_map values (null, 1, 1024, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1025, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1026, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 1, 2042, 0);
 
 insert into kotoumi_genshin_wish_unit_map values (null, 2, 2001, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 2, 2002, 0);
