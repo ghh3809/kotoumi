@@ -527,7 +527,7 @@ public class DialogService {
                         .append(unit.getUnitName())
                         .append(WishHelper.isOverflow(unit) ? "(6命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
                 star5Flag = true;
-            } else {
+            } else if (unit.getRarity() == 4) {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())
@@ -575,7 +575,7 @@ public class DialogService {
                         .append(unit.getUnitName())
                         .append(WishHelper.isOverflow(unit) ? "(精炼5)\n" : ("(精炼" + unit.getLevel() + ")\n"));
                 star5Flag = true;
-            } else {
+            } else if (unit.getRarity() == 4) {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())

@@ -21,7 +21,7 @@ public class UnitService {
     private static long accessTokeExpireTime = 0L;
 
     private static final HashMap<String, SessionStatus> SESSION_STATUS_MAP = new HashMap<>();
-    private static final int MAX_SESSION_TIME = 60000;
+    private static final int MAX_SESSION_TIME = 300000;
 
     static {
         refreshAccessToken();
