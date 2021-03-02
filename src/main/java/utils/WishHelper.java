@@ -152,6 +152,19 @@ public class WishHelper {
     }
 
     /**
+     * 命之座/精炼是否满命/满精炼
+     * @param genshinUnit 抽卡对象
+     * @return 是否溢出
+     */
+    public static boolean isFull(GenshinUnit genshinUnit) {
+        if (genshinUnit.getUnitType() == 1) {
+            return genshinUnit.getLevel() >= 7;
+        } else {
+            return genshinUnit.getLevel() >= 5;
+        }
+    }
+
+    /**
      * ID角色映射
      * @param wishHistory 全部祈愿历史
      * @return ID角色映射

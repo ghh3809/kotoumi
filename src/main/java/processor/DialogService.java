@@ -465,8 +465,13 @@ public class DialogService {
             GenshinUnit genshinUnit = result.get(result.size() - (wishCount - i));
             String levelInfo = "";
             if (genshinUnit.getRarity() > 3) {
-                if (WishHelper.isOverflow(genshinUnit)) {
-                    levelInfo = genshinUnit.getUnitType() == 1 ? "(已满命)" : "(已满精炼)";
+                if (WishHelper.isFull(genshinUnit)) {
+                    if (genshinUnit.getRarity() == 5) {
+                        levelInfo = genshinUnit.getUnitType() == 1 ? ("(已满命，溢出" + (genshinUnit.getLevel() - 7) + ")") :
+                                "(已满精炼，溢出" + (genshinUnit.getLevel() - 5) + ")";
+                    } else {
+                        levelInfo = genshinUnit.getUnitType() == 1 ? "(已满命)" : "(已满精炼)";
+                    }
                 } else {
                     levelInfo = genshinUnit.getUnitType() == 1 ? ("(第" + (genshinUnit.getLevel() - 1) + "命)") : ("(精炼" + genshinUnit.getLevel() + ")");
                 }
@@ -536,13 +541,13 @@ public class DialogService {
                 stringBuilder5.append(++ star5Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(6命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
+                        .append(WishHelper.isFull(unit) ? ("(满命，溢出" + (unit.getLevel() - 7) + ")\n") : ("(" + (unit.getLevel() - 1) + "命)\n"));
                 star5Flag = true;
             } else if (unit.getRarity() == 4) {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(6命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
+                        .append(WishHelper.isFull(unit) ? "(满命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
                 star4Flag = true;
             }
         }
@@ -584,13 +589,13 @@ public class DialogService {
                 stringBuilder5.append(++ star5Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(精炼5)\n" : ("(精炼" + unit.getLevel() + ")\n"));
+                        .append(WishHelper.isFull(unit) ? ("(满精炼，溢出" + (unit.getLevel() - 5) + ")\n") : ("(精炼" + unit.getLevel() + ")\n"));
                 star5Flag = true;
             } else if (unit.getRarity() == 4) {
                 stringBuilder4.append(++ star4Count)
                         .append(". ")
                         .append(unit.getUnitName())
-                        .append(WishHelper.isOverflow(unit) ? "(精炼5)\n" : ("(精炼" + unit.getLevel() + ")\n"));
+                        .append(WishHelper.isFull(unit) ? "(满精炼)\n" : ("(精炼" + unit.getLevel() + ")\n"));
                 star4Flag = true;
             }
         }
