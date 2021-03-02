@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 public class DialogService {
 
     private static final long ADMIN_QQ = 1146875163L;
+    private static final long LIMITED_GROUP = 709375205L;
     /**
      * 图片存储位置
      */
@@ -184,6 +185,16 @@ public class DialogService {
                 }
             } else {
                 MULTI_TURN_STATUS_MAP.remove(userId);
+            }
+        }
+
+        // 被限制的群聊：海鸟阁，仅支持抽卡
+        if (request.getGroup() != null && request.getGroup().getId() == LIMITED_GROUP) {
+            if (request.getQuery().startsWith(QUERY_CARD_KEYWORD)) {
+                // 查卡
+                return queryCard(request);
+            } else {
+                return null;
             }
         }
 
