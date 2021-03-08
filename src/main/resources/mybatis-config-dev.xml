@@ -29,6 +29,7 @@
         <mapper resource="mapper/unitMapper.xml"/>
         <mapper resource="mapper/keywordMapper.xml"/>
         <mapper resource="mapper/dailyMapper.xml"/>
+        <mapper resource="mapper/eventMapper.xml"/>
     </mappers>
 
 </configuration>

@@ -4,16 +4,7 @@ import com.alibaba.fastjson.JSON;
 import constant.MessageSource;
 import constant.MultiTurnTask;
 import dao.Dao;
-import entity.service.Daily;
-import entity.service.GenshinUnit;
-import entity.service.Keyword;
-import entity.service.MultiTurnStatus;
-import entity.service.PrimoGems;
-import entity.service.Request;
-import entity.service.Unit;
-import entity.service.WishEvent;
-import entity.service.WishStatus;
-import entity.service.WishSummary;
+import entity.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.At;
@@ -68,6 +59,7 @@ public class DialogService {
     private static final Pattern KEYWORD_QUERY_PATTERN = Pattern.compile("^(.*?)(_起始_\\d+)?$");
     private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连)(.*?)池.*$");
     private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.*?)_(.*)$");
+    private static final Pattern SIF_RANK_PATTERN = Pattern.compile("^(国服|当前|实时)?档线$");
     /**
      * query关键字
      */
@@ -89,6 +81,7 @@ public class DialogService {
     private static final String PROB_KEYWORD = "概率说明";
     private static final String CURRENT_WISH_KEYWORD = "当前卡池";
     private static final String MY_SUMMARY_KEYWORD = "我的统计";
+
     /**
      * 回复关键字
      */
@@ -189,10 +182,14 @@ public class DialogService {
         }
 
         // 被限制的群聊：海鸟阁，仅支持抽卡
+        Matcher rankMatcher = SIF_RANK_PATTERN.matcher(request.getQuery());
         if (request.getGroup() != null && request.getGroup().getId() == LIMITED_GROUP) {
             if (request.getQuery().startsWith(QUERY_CARD_KEYWORD)) {
                 // 查卡
                 return queryCard(request);
+            } else if (rankMatcher.find()) {
+                // 国服档线
+                return sifRank(request);
             } else {
                 return null;
             }
@@ -259,6 +256,9 @@ public class DialogService {
         } else if (request.getQuery().equals(MY_SUMMARY_KEYWORD)) {
             // 抽卡统计
             return mySummary(request);
+        } else if (rankMatcher.find()) {
+            // 国服档线
+            return sifRank(request);
         }
 
         // 群自定义词库
@@ -711,6 +711,105 @@ public class DialogService {
                 .append(String.format("%.2f", wishSummary.getStarFourCount() * 100.0 / wishSummary.getTotalCount()))
                 .append("%");
         return EmptyMessageChain.INSTANCE.plus(stringBuilder);
+    }
+
+    /**
+     * 查看sif国服档线
+     * @param request 请求
+     * @return 返回
+     */
+    private static MessageChain sifRank(Request request) {
+        log.info("SIF rank found");
+        SifEvent sifEvent = Dao.getCurrentEvent();
+        log.info("sifEvent: {}", sifEvent);
+        if (sifEvent == null) {
+            return EmptyMessageChain.INSTANCE.plus("未查询到当前活动");
+        }
+        StringBuilder stringBuilder = new StringBuilder("\n----------\n【活动信息】\n当前活动: ");
+        stringBuilder.append(sifEvent.getEventName())
+                .append("\n活动时间: ")
+                .append(sifEvent.getStartTime())
+                .append(" ~ ")
+                .append(sifEvent.getEndTime())
+                .append("\n活动状态: ")
+                .append(sifEvent.getActive() ? "进行中" : "已结束")
+                .append("\n----------\n【PT榜信息】\n");
+
+        List<EventRank> eventRankList = Dao.getSifEventRank(sifEvent.getEventId(), 0);
+        List<EventRank> eventRankListLastHour = Dao.getSifEventRank(sifEvent.getEventId(), 3600);
+        log.info("eventRankList: {}", eventRankList);
+        int pt1 = -1;
+        int changePt1 = 0;
+        String timePt1 = "";
+        int pt2 = -1;
+        int changePt2 = 0;
+        String timePt2 = "";
+        int pt3 = -1;
+        int changePt3 = 0;
+        String timePt3 = "";
+        int live1 = -1;
+        int changeLive1 = 0;
+        String timeLive1 = "";
+        int live2 = -1;
+        int changeLive2 = 0;
+        String timeLive2 = "";
+        for (EventRank eventRank : eventRankList) {
+            if ("pt".equals(eventRank.getType())) {
+                if (eventRank.getRank() == 120) {
+                    pt1 = eventRank.getScore();
+                    timePt1 = eventRank.getRequestTime().substring(5, 16);
+                } else if (eventRank.getRank() == 700) {
+                    pt2 = eventRank.getScore();
+                    timePt2 = eventRank.getRequestTime().substring(5, 16);
+                } else if (eventRank.getRank() == 2300) {
+                    pt3 = eventRank.getScore();
+                    timePt3 = eventRank.getRequestTime().substring(5, 16);
+                }
+            } else {
+                if (eventRank.getRank() == 2300) {
+                    live1 = eventRank.getScore();
+                    timeLive1 = eventRank.getRequestTime().substring(5, 16);
+                } else if (eventRank.getRank() == 6900) {
+                    live2 = eventRank.getScore();
+                    timeLive2 = eventRank.getRequestTime().substring(5, 16);
+                }
+            }
+        }
+        for (EventRank eventRank : eventRankListLastHour) {
+            if ("pt".equals(eventRank.getType())) {
+                if (eventRank.getRank() == 120) {
+                    changePt1 = pt1 - eventRank.getScore();
+                } else if (eventRank.getRank() == 700) {
+                    changePt2 = pt2 - eventRank.getScore();
+                } else if (eventRank.getRank() == 2300) {
+                    changePt3 = pt3 - eventRank.getScore();
+                }
+            } else {
+                if (eventRank.getRank() == 2300) {
+                    changeLive1 = live1 - eventRank.getScore();
+                } else if (eventRank.getRank() == 6900) {
+                    changeLive2 = live2 - eventRank.getScore();
+                }
+            }
+        }
+
+        stringBuilder.append("PT一档(Rk. 120): \n")
+                .append(pt1 > 0 ? (pt1 + " (" + timePt1 + ", +" + changePt1 + "/h)") : "未知")
+                .append("\n")
+                .append("PT二档(Rk. 700): \n")
+                .append(pt2 > 0 ? (pt2 + " (" + timePt2 + ", +" + changePt2 + "/h)") : "未知")
+                .append("\n")
+                .append("PT三档(Rk. 2300): \n")
+                .append(pt3 > 0 ? (pt3 + " (" + timePt3 + ", +" + changePt3 + "/h)") : "未知")
+                .append("\n----------\n【歌榜信息】\n")
+                .append("歌榜一档(Rk. 2300): \n")
+                .append(live1 > 0 ? (live1 + " (" + timeLive1 + ", +" + changeLive1 + "/h)") : "未知")
+                .append("\n")
+                .append("歌榜二档(Rk. 6900): \n")
+                .append(live2 > 0 ? (live2 + " (" + timeLive2 + ", +" + changeLive2 + "/h)") : "未知")
+                .append("\n----------\n若发现档线更新不及时，可以接入海鸟站（http://kotoumi.top）并在游戏中查看对应档线帮我恢复哦~");
+        return EmptyMessageChain.INSTANCE.plus(stringBuilder);
+
     }
 
     /**

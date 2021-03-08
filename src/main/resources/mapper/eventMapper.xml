@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper">
+
+    <select id="getCurrentEvent" resultType="entity.service.SifEvent">
+        select event_id, event_name, start_time, end_time, (CURRENT_TIMESTAMP &lt; end_time) as active
+        from event_map
+        order by event_id desc
+        limit 1
+    </select>
+
+    <select id="getSifEventRank" resultType="entity.service.EventRank">
+        select event_id, type, rank, max(score) as score, max(request_time) as request_time
+        from event_rank
+        where event_id = #{eventId}
+        and request_time &lt; CURRENT_TIMESTAMP - INTERVAL #{secondsAgo} SECOND
+        group by event_id, type, rank
+    </select>
+
+</mapper>

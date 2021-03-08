@@ -1,12 +1,6 @@
 package dao;
 
-import entity.service.Daily;
-import entity.service.GenshinUnit;
-import entity.service.Keyword;
-import entity.service.PrimoGems;
-import entity.service.Unit;
-import entity.service.WishEvent;
-import entity.service.WishSummary;
+import entity.service.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -395,6 +389,30 @@ public class Dao {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("userId", userId);
             return session.selectOne("getWishSummary", hashMap);
+        }
+    }
+
+    /**
+     * 获取当前活动信息
+     * @return 当前活动信息
+     */
+    public static SifEvent getCurrentEvent() {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            return session.selectOne("getCurrentEvent");
+        }
+    }
+
+    /**
+     * 获取活动排行榜信息
+     * @param eventId 活动ID
+     * @return 排行榜信息
+     */
+    public static List<EventRank> getSifEventRank(int eventId, int secondsAgo) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("eventId", eventId);
+            hashMap.put("secondsAgo", secondsAgo);
+            return session.selectList("getSifEventRank", hashMap);
         }
     }
 
