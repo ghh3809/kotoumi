@@ -181,13 +181,10 @@ public class DialogService {
             }
         }
 
-        // 被限制的群聊：海鸟阁，仅支持抽卡
+        // 被限制的群聊：海鸟阁，仅支持档线
         Matcher rankMatcher = SIF_RANK_PATTERN.matcher(request.getQuery());
         if (request.getGroup() != null && request.getGroup().getId() == LIMITED_GROUP) {
-            if (request.getQuery().startsWith(QUERY_CARD_KEYWORD)) {
-                // 查卡
-                return queryCard(request);
-            } else if (rankMatcher.find()) {
+            if (rankMatcher.find()) {
                 // 国服档线
                 return sifRank(request);
             } else {

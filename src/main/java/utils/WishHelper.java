@@ -26,7 +26,7 @@ public class WishHelper {
      */
     private static final int WISH_TYPE_STANDARD = 1;
     /**
-     * 祈愿类型，2为80抽保底武器up（75%）池
+     * 祈愿类型，2为80抽保底武器up（75%）池且有大保底
      */
     private static final int WISH_TYPE_WEAPON = 2;
     /**
@@ -86,7 +86,7 @@ public class WishHelper {
                 // 更新抽卡状态
                 wishStatus.setStar5Count(0);
                 wishStatus.setStar4Count(0);
-                if (currentEvent.getWishType() == WISH_TYPE_CHARACTER) {
+                if (currentEvent.getWishType() == WISH_TYPE_CHARACTER || currentEvent.getWishType() == WISH_TYPE_WEAPON) {
                     wishStatus.setMustUp(unit.getIsUp() != 1);
                 }
             } else if (rand < nextProb4 + nextProb5) {
@@ -229,7 +229,7 @@ public class WishHelper {
             } else {
                 wishStatus.setStar4Count(star4Count);
                 wishStatus.setStar5Count(star5Count);
-                if (wishEvent.getWishType() == WISH_TYPE_CHARACTER) {
+                if (wishEvent.getWishType() == WISH_TYPE_CHARACTER || wishEvent.getWishType() == WISH_TYPE_WEAPON) {
                     if (genshinUnit.getIsUp() == 0) {
                         wishStatus.setMustUp(true);
                     }

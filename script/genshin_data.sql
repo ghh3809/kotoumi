@@ -28,6 +28,7 @@ insert into kotoumi_genshin_unit values (1026, 1, '阿贝多', 5);
 insert into kotoumi_genshin_unit values (1027, 1, '甘雨', 5);
 insert into kotoumi_genshin_unit values (1028, 1, '魈', 5);
 insert into kotoumi_genshin_unit values (1029, 1, '胡桃', 5);
+insert into kotoumi_genshin_unit values (1030, 1, '罗莎莉亚', 4);
 
 # 武器信息
 insert into kotoumi_genshin_unit values (2001, 2, '飞天御剑', 3);
@@ -88,6 +89,7 @@ insert into kotoumi_genshin_unit values (2055, 2, '千岩长枪', 4);
 insert into kotoumi_genshin_unit values (2056, 2, '终末嗟叹之诗', 5);
 insert into kotoumi_genshin_unit values (2057, 2, '暗巷闪光', 4);
 insert into kotoumi_genshin_unit values (2058, 2, '暗巷的酒与诗', 4);
+insert into kotoumi_genshin_unit values (2059, 2, '暗巷猎手', 4);
 
 # 祈愿池信息
 insert into kotoumi_genshin_wish_event values (1, '角色', '截止1.2版本所有上场过的5星角色', '截止1.2版本所有上场过的4星角色', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
@@ -97,10 +99,12 @@ insert into kotoumi_genshin_wish_event values (4, '常驻', '常驻池5星角色
 insert into kotoumi_genshin_wish_event values (101, '角色up-魈', 'up角色：魈，非up角色：常驻池五星角色', 'up角色：迪奥娜、北斗、辛焱，非up角色：常驻池四星', 3, '2021-02-03 10:00:00', '2021-02-17 15:59:59');
 insert into kotoumi_genshin_wish_event values (102, '角色up-刻晴', 'up角色：刻晴，非up角色：常驻池五星角色', 'up角色：凝光、班尼特、芭芭拉，非up角色：常驻池四星', 3, '2021-02-17 18:00:00', '2021-03-02 15:59:59');
 insert into kotoumi_genshin_wish_event values (103, '角色up-胡桃', 'up角色：胡桃，非up角色：常驻池五星角色', 'up角色：香菱、重云、行秋，非up角色：常驻池四星', 3, '2021-03-02 18:00:00', '2021-03-16 14:59:59');
-insert into kotoumi_genshin_wish_event values (104, '角色up', 'up角色：温迪，非up角色：常驻池五星角色', 'up角色：砂糖、雷泽、诺艾尔，非up角色：常驻池四星', 3, '2021-03-17 11:00:00', '2021-04-06 15:59:59');
+insert into kotoumi_genshin_wish_event values (104, '角色up-温迪', 'up角色：温迪，非up角色：常驻池五星角色', 'up角色：砂糖、雷泽、诺艾尔，非up角色：常驻池四星', 3, '2021-03-17 11:00:00', '2021-04-06 15:59:59');
+insert into kotoumi_genshin_wish_event values (105, '角色up', 'up角色：达达利亚，非up角色：常驻池五星角色', 'up角色：罗莎莉亚、芭芭拉、菲谢尔，非up角色：常驻池四星', 3, '2021-04-06 18:00:00', '2021-04-27 14:59:59');
 insert into kotoumi_genshin_wish_event values (201, '武器up-磐岩结绿&和璞鸢', 'up武器：磐岩结绿、和璞鸢，非up武器：常驻池五星武器', 'up武器：笛剑、祭礼大剑、弓藏、昭心、西风长枪，非up武器：常驻池四星', 2, '2021-02-03 10:00:00', '2021-02-23 15:59:59');
 insert into kotoumi_genshin_wish_event values (202, '武器up-狼的末路&护摩之杖', 'up武器：狼的末路、护摩之杖，非up武器：常驻池五星武器', 'up武器：千岩古剑、千岩长枪、匣里龙吟、祭礼弓、流浪乐章，非up武器：常驻池四星', 2, '2021-02-23 10:00:00', '2021-03-16 14:59:59');
-insert into kotoumi_genshin_wish_event values (203, '武器up', 'up武器：终末嗟叹之诗、天空之刃，非up武器：常驻池五星武器', 'up武器：暗巷闪光、暗巷的酒与诗、西风大剑、西风猎弓、匣里灭辰，非up武器：常驻池四星', 2, '2021-03-17 11:00:00', '2021-04-06 15:59:59');
+insert into kotoumi_genshin_wish_event values (203, '武器up-终末嗟叹之诗&天空之刃', 'up武器：终末嗟叹之诗、天空之刃，非up武器：常驻池五星武器', 'up武器：暗巷闪光、暗巷的酒与诗、西风大剑、西风猎弓、匣里灭辰，非up武器：常驻池四星', 2, '2021-03-17 11:00:00', '2021-04-06 15:59:59');
+insert into kotoumi_genshin_wish_event values (204, '武器up', 'up武器：天空之翼、四风原典，非up武器：常驻池五星武器', 'up武器：暗巷猎手、西风剑、祭礼大剑、西风秘典、西风长枪，非up武器：常驻池四星', 2, '2021-04-06 18:00:00', '2021-04-27 14:59:59');
 
 # 角色池
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1001, 0);
@@ -548,6 +552,59 @@ insert into kotoumi_genshin_wish_unit_map values (null, 104, 2040, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 104, 2041, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 104, 2042, 0);
 
+# 角色up池-公子
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1022, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1004, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1010, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1019, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1020, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1021, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1007, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1012, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1030, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1006, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1009, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1011, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1015, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1016, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 1025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2004, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2005, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2007, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2008, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2015, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2016, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2026, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2028, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2029, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2034, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2036, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2043, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2044, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2045, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2048, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 105, 2042, 0);
+
 # 武器up池-磐岩结绿&和璞鸢
 insert into kotoumi_genshin_wish_unit_map values (null, 201, 2052, 1);
 insert into kotoumi_genshin_wish_unit_map values (null, 201, 2038, 1);
@@ -734,6 +791,66 @@ insert into kotoumi_genshin_wish_unit_map values (null, 203, 2033, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 203, 2040, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 203, 2041, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 203, 2042, 0);
+
+# 武器up池-天空之翼、四风原典
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2032, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2049, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2009, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2010, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2020, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2021, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2031, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2037, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2038, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2050, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2007, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2015, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2036, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2045, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2059, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2004, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2005, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2008, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2016, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2026, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2028, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2029, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2034, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2043, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2044, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2048, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1006, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1007, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1009, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1011, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1015, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1016, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 1025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 204, 2042, 0);
 
 # 卡池信息查询
 select unit_name, is_up from kotoumi_genshin_wish_unit_map as map inner join kotoumi_genshin_unit as unit on map.unit_id = unit.id where map.wish_event_id = 103 and unit.rarity = 5;
