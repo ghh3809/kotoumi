@@ -3,6 +3,7 @@ package processor;
 import com.alibaba.fastjson.JSON;
 import constant.MessageSource;
 import constant.MultiTurnTask;
+import constant.UnitType;
 import dao.Dao;
 import entity.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -57,9 +58,10 @@ public class DialogService {
     private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("^\\d{1,4}$");
     private static final Pattern KEYWORD_ADD_PATTERN = Pattern.compile("^问[ _](.+?)[ _]答[ _](.+)$", Pattern.DOTALL);
     private static final Pattern KEYWORD_QUERY_PATTERN = Pattern.compile("^(.*?)(_起始_\\d+)?$");
-    private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连)(.*?)池.*$");
-    private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.*?)_(.*)$");
+    private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连)(.+?)池.*$");
+    private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.+?)_(.+)$");
     private static final Pattern SIF_RANK_PATTERN = Pattern.compile("^(国服|当前|实时)?档线$");
+    private static final Pattern WISH_RESULT_PATTERN = Pattern.compile("^我的(.+)$");
     /**
      * query关键字
      */
@@ -75,12 +77,9 @@ public class DialogService {
     private static final String DIVINE_KEYWORD = "占卜";
     private static final String SUBSTITUTE_KEYWORD = "设置替换关键词";
     private static final String CARD_PK_KEYWORD = "卡组pk";
-    private static final String CHARACTER_KEYWORD = "我的角色";
-    private static final String WEAPON_KEYWORD = "我的武器";
     private static final String TRANSFORM_KEYWORD = "星辉全部换原石";
     private static final String PROB_KEYWORD = "概率说明";
     private static final String CURRENT_WISH_KEYWORD = "当前卡池";
-    private static final String MY_SUMMARY_KEYWORD = "我的统计";
 
     /**
      * 回复关键字
@@ -196,6 +195,7 @@ public class DialogService {
         Matcher addKeywordMatcher = KEYWORD_ADD_PATTERN.matcher(request.getQuery());
         Matcher wishMatcher = WISH_PATTERN.matcher(request.getQuery());
         Matcher addPrimogemsMatcher = ADD_PRIMOGEMS_PATTERN.matcher(request.getQuery());
+        Matcher wishResultMatcher = WISH_RESULT_PATTERN.matcher(request.getQuery());
         if (request.getQuery().equals(HELP_KEYWORD)) {
             // 帮助
             return help();
@@ -232,12 +232,9 @@ public class DialogService {
         } else if (addKeywordMatcher.find()) {
             // 添加词库
             return addKeyword(request, addKeywordMatcher);
-        } else if (request.getQuery().equals(CHARACTER_KEYWORD)) {
-            // 我的角色
-            return myCharacter(request);
-        } else if (request.getQuery().equals(WEAPON_KEYWORD)) {
-            // 我的武器
-            return myWeapon(request);
+        } else if (wishResultMatcher.find()) {
+            // 我的祈愿信息
+            return myWish(request, wishResultMatcher);
         } else if (request.getQuery().equals(TRANSFORM_KEYWORD)) {
             // 星辉全部换原石
             return transform(request);
@@ -250,9 +247,6 @@ public class DialogService {
         } else if (request.getQuery().equals(CURRENT_WISH_KEYWORD)) {
             // 当前卡池
             return currentWish(request);
-        } else if (request.getQuery().equals(MY_SUMMARY_KEYWORD)) {
-            // 抽卡统计
-            return mySummary(request);
         } else if (rankMatcher.find()) {
             // 国服档线
             return sifRank(request);
@@ -458,28 +452,25 @@ public class DialogService {
                 .append(primogems - wishCount * 160)
                 .append("个\n抽卡结果：\n");
         List<Long> picUnits = new ArrayList<>();
+
         for (int i = 0; i < wishCount; i ++) {
+
+            // 生成命座/精炼信息
             GenshinUnit genshinUnit = result.get(result.size() - (wishCount - i));
+            UnitType unitType = UnitType.getById(genshinUnit.getUnitType());
             String levelInfo = "";
             if (genshinUnit.getRarity() > 3) {
-                if (WishHelper.isFull(genshinUnit)) {
-                    if (genshinUnit.getRarity() == 5) {
-                        levelInfo = genshinUnit.getUnitType() == 1 ? ("(已满命，溢出" + (genshinUnit.getLevel() - 7) + ")") :
-                                "(已满精炼，溢出" + (genshinUnit.getLevel() - 5) + ")";
-                    } else {
-                        levelInfo = genshinUnit.getUnitType() == 1 ? "(已满命)" : "(已满精炼)";
-                    }
-                } else {
-                    levelInfo = genshinUnit.getUnitType() == 1 ? ("(第" + (genshinUnit.getLevel() - 1) + "命)") : ("(精炼" + genshinUnit.getLevel() + ")");
-                }
+                levelInfo = generateLevelInfo(genshinUnit);
                 picUnits.add(genshinUnit.getId());
             }
+
+            // 生成抽卡结果信息
             stringBuilder.append(i + 1).append(". ");
             for (int j = 0; j < genshinUnit.getRarity(); j ++) {
                 stringBuilder.append("★");
             }
             stringBuilder.append(" ")
-                    .append(genshinUnit.getUnitType() == 1 ? "角色" : "武器")
+                    .append(unitType.getTypeName())
                     .append(" ")
                     .append(genshinUnit.getUnitName())
                     .append(levelInfo)
@@ -515,99 +506,64 @@ public class DialogService {
     }
 
     /**
-     * 查看自己的角色
-     * @param request 请求
+     * 查看自己的祈愿信息
+     * @param request 请求信息
+     * @param matcher 正则
      * @return 返回
      */
-    private static MessageChain myCharacter(Request request) {
+    private static MessageChain myWish(Request request, Matcher matcher) {
 
-        // 获取详情
-        log.info("My character found");
-        List<GenshinUnit> wishHistory = Dao.getWishHistoryForSummary(request.getFrom(), 1);
-        List<GenshinUnit> wishSummary = WishHelper.getUnitSummary(wishHistory);
+        log.info("My wish found");
+        String keyword = matcher.group(1);
+        if ("统计".equals(keyword)) {
+            return mySummary(request);
+        } else {
+            UnitType unitType = UnitType.getByName(keyword);
+            if (unitType != null) {
 
-        // 拼接字符串
-        StringBuilder stringBuilder5 = new StringBuilder("\n获得的五星角色：\n");
-        StringBuilder stringBuilder4 = new StringBuilder("\n获得的四星角色：\n");
-        int star5Count = 0;
-        int star4Count = 0;
-        boolean star5Flag = false;
-        boolean star4Flag = false;
-        for (GenshinUnit unit : wishSummary) {
-            if (unit.getRarity() == 5) {
-                stringBuilder5.append(++ star5Count)
-                        .append(". ")
-                        .append(unit.getUnitName())
-                        .append(WishHelper.isFull(unit) ? ("(满命，溢出" + (unit.getLevel() - 7) + ")\n") : ("(" + (unit.getLevel() - 1) + "命)\n"));
-                star5Flag = true;
-            } else if (unit.getRarity() == 4) {
-                stringBuilder4.append(++ star4Count)
-                        .append(". ")
-                        .append(unit.getUnitName())
-                        .append(WishHelper.isFull(unit) ? "(满命)\n" : ("(" + (unit.getLevel() - 1) + "命)\n"));
-                star4Flag = true;
+                List<GenshinUnit> wishHistory = Dao.getWishHistoryForSummary(request.getFrom(), unitType.getId());
+                List<GenshinUnit> wishSummary = WishHelper.getUnitSummary(wishHistory);
+
+                // 拼接字符串
+                StringBuilder stringBuilder5 = new StringBuilder("\n获得的五星" + unitType.getTypeName() + "：\n");
+                StringBuilder stringBuilder4 = new StringBuilder("\n获得的四星" + unitType.getTypeName() + "：\n");
+                int star5Count = 0;
+                int star4Count = 0;
+                boolean star5Flag = false;
+                boolean star4Flag = false;
+                for (GenshinUnit unit : wishSummary) {
+                    String levelInfo = generateLevelInfo(unit);
+                    if (unit.getRarity() == 5) {
+                        stringBuilder5.append(++ star5Count)
+                                .append(". ")
+                                .append(unit.getUnitName())
+                                .append(levelInfo)
+                                .append("\n");
+                        star5Flag = true;
+                    } else if (unit.getRarity() == 4) {
+                        stringBuilder4.append(++ star4Count)
+                                .append(". ")
+                                .append(unit.getUnitName())
+                                .append(levelInfo)
+                                .append("\n");
+                        star4Flag = true;
+                    }
+                }
+                if (!star5Flag) {
+                    stringBuilder5.append("暂无\n");
+                }
+                if (!star4Flag) {
+                    stringBuilder4.append("暂无\n");
+                }
+                stringBuilder4.deleteCharAt(stringBuilder4.length() - 1);
+                MessageChain messageChain = EmptyMessageChain.INSTANCE;
+                messageChain = messageChain.plus(stringBuilder5);
+                messageChain = messageChain.plus(stringBuilder4);
+
+                return messageChain;
             }
         }
-        if (!star5Flag) {
-            stringBuilder5.append("暂无\n");
-        }
-        if (!star4Flag) {
-            stringBuilder4.append("暂无\n");
-        }
-        stringBuilder4.deleteCharAt(stringBuilder4.length() - 1);
-        MessageChain messageChain = EmptyMessageChain.INSTANCE;
-        messageChain = messageChain.plus(stringBuilder5);
-        messageChain = messageChain.plus(stringBuilder4);
-
-        return messageChain;
-    }
-
-    /**
-     * 查看自己的武器
-     * @param request 请求
-     * @return 返回
-     */
-    private static MessageChain myWeapon(Request request) {
-
-        // 获取详情
-        log.info("My weapon found");
-        List<GenshinUnit> wishHistory = Dao.getWishHistoryForSummary(request.getFrom(), 2);
-        List<GenshinUnit> wishSummary = WishHelper.getUnitSummary(wishHistory);
-
-        // 拼接字符串
-        StringBuilder stringBuilder5 = new StringBuilder("\n获得的五星武器：\n");
-        StringBuilder stringBuilder4 = new StringBuilder("\n获得的四星武器：\n");
-        int star5Count = 0;
-        int star4Count = 0;
-        boolean star5Flag = false;
-        boolean star4Flag = false;
-        for (GenshinUnit unit : wishSummary) {
-            if (unit.getRarity() == 5) {
-                stringBuilder5.append(++ star5Count)
-                        .append(". ")
-                        .append(unit.getUnitName())
-                        .append(WishHelper.isFull(unit) ? ("(满精炼，溢出" + (unit.getLevel() - 5) + ")\n") : ("(精炼" + unit.getLevel() + ")\n"));
-                star5Flag = true;
-            } else if (unit.getRarity() == 4) {
-                stringBuilder4.append(++ star4Count)
-                        .append(". ")
-                        .append(unit.getUnitName())
-                        .append(WishHelper.isFull(unit) ? "(满精炼)\n" : ("(精炼" + unit.getLevel() + ")\n"));
-                star4Flag = true;
-            }
-        }
-        if (!star5Flag) {
-            stringBuilder5.append("暂无\n");
-        }
-        if (!star4Flag) {
-            stringBuilder4.append("暂无\n");
-        }
-        stringBuilder4.deleteCharAt(stringBuilder4.length() - 1);
-        MessageChain messageChain = EmptyMessageChain.INSTANCE;
-        messageChain = messageChain.plus(stringBuilder5);
-        messageChain = messageChain.plus(stringBuilder4);
-
-        return messageChain;
+        return null;
     }
 
     /**
@@ -1400,6 +1356,28 @@ public class DialogService {
         } else {
             return new UnitTag(content, null);
         }
+    }
+
+    /**
+     * 生成命座/精炼信息
+     * @param genshinUnit 角色信息
+     * @return 命座/精炼信息
+     */
+    private static String generateLevelInfo(GenshinUnit genshinUnit) {
+        UnitType unitType = UnitType.getById(genshinUnit.getUnitType());
+        String levelInfo;
+        if (WishHelper.isFull(genshinUnit)) {
+            int overflowCount = genshinUnit.getLevel() - unitType.getFullSize();
+            if (genshinUnit.getRarity() == 5) {
+                levelInfo = String.format("(满%s，溢出%d)", unitType.getUnitName(), overflowCount);
+            } else {
+                levelInfo = String.format("(满%s)", unitType.getUnitName());
+            }
+        } else {
+            int level = genshinUnit.getLevel() - unitType.getLevelBias();
+            levelInfo = String.format("(%d%s)", level, unitType.getUnitName());
+        }
+        return levelInfo;
     }
 
     private static class ResponseFlag {

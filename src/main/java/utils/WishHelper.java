@@ -1,6 +1,7 @@
 package utils;
 
 import com.alibaba.fastjson.JSON;
+import constant.UnitType;
 import dao.Dao;
 import entity.service.GenshinUnit;
 import entity.service.WishEvent;
@@ -144,11 +145,7 @@ public class WishHelper {
      * @return 是否溢出
      */
     public static boolean isOverflow(GenshinUnit genshinUnit) {
-        if (genshinUnit.getUnitType() == 1) {
-            return genshinUnit.getLevel() > 7;
-        } else {
-            return genshinUnit.getLevel() > 5;
-        }
+        return genshinUnit.getLevel() > UnitType.getById(genshinUnit.getUnitType()).getFullSize();
     }
 
     /**
@@ -157,11 +154,7 @@ public class WishHelper {
      * @return 是否溢出
      */
     public static boolean isFull(GenshinUnit genshinUnit) {
-        if (genshinUnit.getUnitType() == 1) {
-            return genshinUnit.getLevel() >= 7;
-        } else {
-            return genshinUnit.getLevel() >= 5;
-        }
+        return genshinUnit.getLevel() >= UnitType.getById(genshinUnit.getUnitType()).getFullSize();
     }
 
     /**
