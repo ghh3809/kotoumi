@@ -13,6 +13,7 @@ import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.Face;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageContent;
 import org.apache.commons.lang3.StringUtils;
 import utils.FileHelper;
 import utils.RequestHelper;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,6 +132,7 @@ public class DialogService {
     private static final ConcurrentHashMap<Long, HashMap<String, List<Keyword>>> KEYWORD_MAP = new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static boolean IMAGE_FLAG = false;
 
     public static MessageChain response(MessageChain at, Request request) {
         ResponseFlag responseFlag = new ResponseFlag();
@@ -1227,14 +1230,34 @@ public class DialogService {
      * @param image 上传后的图片文件
      * @return messageChain
      */
-    private static Image uploadImage(Request request, File image) {
-        if (request.getMessageSource().equals(MessageSource.GROUP)) {
-            // 备注：虽然不知道为什么这里要上传两遍，但是少任意一个都不能用……
-            request.getGroup().getBotAsMember().uploadImage(image);
-            return request.getGroup().uploadImage(image);
-        } else {
-            return request.getBot().getSelfQQ().uploadImage(image);
+    private static MessageChain uploadImage(Request request, File image) {
+        boolean accept;
+        synchronized (DialogService.class) {
+            if (! IMAGE_FLAG) {
+                IMAGE_FLAG = true;
+                accept = true;
+            } else {
+                accept = false;
+            }
         }
+        if (!accept) {
+            return EmptyMessageChain.INSTANCE.plus("[图片]");
+        }
+        try {
+            if (request.getMessageSource().equals(MessageSource.GROUP)) {
+                // 备注：虽然不知道为什么这里要上传两遍，但是少任意一个都不能用……
+                // UPDATE: 好像不加这句可以用了，诶嘿
+                // request.getGroup().getBotAsMember().uploadImage(image);
+                return EmptyMessageChain.INSTANCE.plus(request.getGroup().uploadImage(image));
+            } else {
+                return EmptyMessageChain.INSTANCE.plus(request.getBot().getSelfQQ().uploadImage(image));
+            }
+        } finally {
+            synchronized (DialogService.class) {
+                IMAGE_FLAG = false;
+            }
+        }
+
     }
 
     /**
