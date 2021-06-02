@@ -309,9 +309,7 @@ public class Dao {
     /**
      * 查询抽卡历史
      * @param userId 用户ID
-     * @param wishEventId 祈愿池子id，1（角色）/2（武器）/3（混合）
      * @param unitType 类型，0（不区分）/1（角色）/2（武器）
-     * @param limit 限制数，0为不限
      * @return 抽卡成员列表
      */
     public static List<GenshinUnit> getWishHistoryForSummary(long userId, int unitType) {
@@ -413,6 +411,49 @@ public class Dao {
             hashMap.put("eventId", eventId);
             hashMap.put("secondsAgo", secondsAgo);
             return session.selectList("getSifEventRank", hashMap);
+        }
+    }
+
+    /**
+     * 更改祈愿模式
+     * @param userId 用户ID
+     * @param mode 祈愿模式
+     */
+    public static void addWishMode(long userId, int mode) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            hashMap.put("wishMode", mode);
+            session.insert("addWishMode", hashMap);
+            session.commit();
+        }
+    }
+
+    /**
+     * 添加原石数量
+     * @param userId 用户ID
+     * @param mode 祈愿模式
+     */
+    public static void updateWishMode(long userId, int mode) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            hashMap.put("wishMode", mode);
+            session.update("updateWishMode", hashMap);
+            session.commit();
+        }
+    }
+
+    /**
+     * 查询原石数量
+     * @param userId 用户ID
+     * @return 原石数量
+     */
+    public static Integer getWishMode(long userId) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            return session.selectOne("getWishMode", hashMap);
         }
     }
 

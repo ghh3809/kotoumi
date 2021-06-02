@@ -72,3 +72,10 @@ CREATE TABLE `kotoumi_genshin_wish_unit_map` (
     `is_up` int(11) NOT NULL COMMENT '是否是up对象',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人祈愿池和对象映射表';
+
+CREATE TABLE `kotoumi_genshin_wish_mode` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+    `wish_mode` int(11) NOT NULL COMMENT '招募模式，0普通，1快速，2无图',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人祈愿池招募模式';

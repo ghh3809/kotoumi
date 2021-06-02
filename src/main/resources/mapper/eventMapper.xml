@@ -20,4 +20,23 @@
         group by event_id, type, rank
     </select>
 
+    <insert id="addWishMode">
+        insert into kotoumi_genshin_wish_mode
+        set user_id = #{userId},
+            wish_mode = #{wishMode}
+    </insert>
+
+    <update id="updateWishMode">
+        update kotoumi_genshin_wish_mode
+        set wish_mode = #{wishMode}
+        where user_id = #{userId}
+    </update>
+
+    <select id="getWishMode" resultType="Integer">
+        select wish_mode
+        from kotoumi_genshin_wish_mode
+        where user_id = #{userId}
+        limit 1
+    </select>
+
 </mapper>

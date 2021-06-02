@@ -5,21 +5,31 @@ import constant.MessageSource;
 import constant.MultiTurnTask;
 import constant.UnitType;
 import dao.Dao;
-import entity.service.*;
+import entity.service.Daily;
+import entity.service.EventRank;
+import entity.service.GenshinUnit;
+import entity.service.Keyword;
+import entity.service.MultiTurnStatus;
+import entity.service.PrimoGems;
+import entity.service.Request;
+import entity.service.SifEvent;
+import entity.service.Unit;
+import entity.service.WishEvent;
+import entity.service.WishStatus;
+import entity.service.WishSummary;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.Face;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageContent;
 import org.apache.commons.lang3.StringUtils;
 import utils.FileHelper;
 import utils.RequestHelper;
 import utils.WishHelper;
 
 import java.io.File;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +39,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,10 +69,11 @@ public class DialogService {
     private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("^\\d{1,4}$");
     private static final Pattern KEYWORD_ADD_PATTERN = Pattern.compile("^问[ _](.+?)[ _]答[ _](.+)$", Pattern.DOTALL);
     private static final Pattern KEYWORD_QUERY_PATTERN = Pattern.compile("^(.*?)(_起始_\\d+)?$");
-    private static final Pattern WISH_PATTERN = Pattern.compile("^(抽卡|单抽|10连|十连)(.+?)池.*$");
+    private static final Pattern WISH_PATTERN = Pattern.compile("^(普通|快速|无图|)(抽卡|单抽|10连|十连)(.+?)池.*$");
     private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.+?)_(.+)$");
     private static final Pattern SIF_RANK_PATTERN = Pattern.compile("^(国服|当前|实时)?档线$");
     private static final Pattern WISH_RESULT_PATTERN = Pattern.compile("^我的(.+)$");
+    private static final Pattern MODE_SET_PATTERN = Pattern.compile("^设置图片模式(普通|快速|无图)$");
     /**
      * query关键字
      */
@@ -96,13 +106,14 @@ public class DialogService {
             + "查询词库：查询词库[{词库ID/关键词}][_起始_{起始编号}]\n"
             + "删除词库：删除词库{词库ID/关键词}\n"
             + "【抽卡】\n"
-            + "抽卡：抽卡/10连[标准池/角色池/武器池]\n"
+            + "抽卡：[普通/快速/无图/]抽卡/10连[标准池/角色池/武器池]（快速抽卡将仅显示5星图片，无图抽卡将不显示图片）\n"
             + "查看拥有角色：我的角色\n"
             + "查看拥有武器：我的武器\n"
             + "查看祈愿统计：我的统计\n"
             + "星辉换原石：星辉全部换原石\n"
             + "查看当前开放卡池：当前卡池\n"
             + "获取详细概率说明：概率说明\n"
+            + "设置抽卡图片模式：设置图片模式[普通/快速/无图]"
             + "【关于】\n"
             + "海鸟阁小机器人，请各位善待，如有需求或问题，欢迎随时反馈管理组！";
     private static final String PROB_RESPONSE = "模拟抽卡概率遵循以下原则：\n"
@@ -199,6 +210,7 @@ public class DialogService {
         Matcher wishMatcher = WISH_PATTERN.matcher(request.getQuery());
         Matcher addPrimogemsMatcher = ADD_PRIMOGEMS_PATTERN.matcher(request.getQuery());
         Matcher wishResultMatcher = WISH_RESULT_PATTERN.matcher(request.getQuery());
+        Matcher modeSetMatcher = MODE_SET_PATTERN.matcher(request.getQuery());
         if (request.getQuery().equals(HELP_KEYWORD)) {
             // 帮助
             return help();
@@ -253,6 +265,9 @@ public class DialogService {
         } else if (rankMatcher.find()) {
             // 国服档线
             return sifRank(request);
+        } else if (modeSetMatcher.find()) {
+            // 设置招募模式
+            return setMode(request, modeSetMatcher);
         }
 
         // 群自定义词库
@@ -425,12 +440,25 @@ public class DialogService {
 
         log.info("Wish found");
         // 预处理
-        String wishCountStr = matcher.group(1);
+        int wishMode = 0;
+        String wishModeStr = matcher.group(1);
+        String wishCountStr = matcher.group(2);
         int wishCount = 10;
+        if ("快速".equals(wishModeStr)) {
+            wishMode = 1;
+        } else if ("无图".equals(wishModeStr)) {
+            wishMode = 2;
+        } else if ("".equals(wishModeStr)) {
+            Integer dbWishMode = Dao.getWishMode(request.getFrom());
+            if (dbWishMode != null) {
+                wishMode = dbWishMode;
+            }
+        }
         if ("抽卡".equals(wishCountStr) || "单抽".equals(wishCountStr)) {
             wishCount = 1;
         }
-        String wishTypeStr = matcher.group(2);
+        log.info("wishMode: {}, wishCount: {}", wishMode, wishCount);
+        String wishTypeStr = matcher.group(3);
 
         // 校验原石数量
         PrimoGems primoGemsInfo = Dao.getPrimogems(request.getFrom());
@@ -464,20 +492,25 @@ public class DialogService {
             String levelInfo = "";
             if (genshinUnit.getRarity() > 3) {
                 levelInfo = generateLevelInfo(genshinUnit);
+            }
+            if ((wishMode == 0 && genshinUnit.getRarity() > 3) ||
+                    (wishMode == 1 && genshinUnit.getRarity() > 4)) {
                 picUnits.add(genshinUnit.getId());
             }
 
             // 生成抽卡结果信息
-            stringBuilder.append(i + 1).append(". ");
-            for (int j = 0; j < genshinUnit.getRarity(); j ++) {
-                stringBuilder.append("★");
+            if (wishCount == 1 || genshinUnit.getRarity() > 3) {
+                stringBuilder.append(i + 1).append(". ");
+                for (int j = 0; j < genshinUnit.getRarity(); j ++) {
+                    stringBuilder.append("★");
+                }
+                stringBuilder.append(" ")
+                        .append(unitType.getTypeName())
+                        .append(" ")
+                        .append(genshinUnit.getUnitName())
+                        .append(levelInfo)
+                        .append("\n");
             }
-            stringBuilder.append(" ")
-                    .append(unitType.getTypeName())
-                    .append(" ")
-                    .append(genshinUnit.getUnitName())
-                    .append(levelInfo)
-                    .append("\n");
         }
         MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(stringBuilder);
 
@@ -766,6 +799,23 @@ public class DialogService {
                 .append("\n----------\n若发现档线更新不及时，可以接入海鸟站（http://kotoumi.top）并在游戏中查看对应档线帮我恢复哦~");
         return EmptyMessageChain.INSTANCE.plus(stringBuilder);
 
+    }
+
+    private static MessageChain setMode(Request request, Matcher matcher) {
+        log.info("Set mode found");
+        String modeString = matcher.group(1);
+        int mode = 0;
+        if ("快速".equals(modeString)) {
+            mode = 1;
+        } else if ("无图".equals(modeString)) {
+            mode = 2;
+        }
+        if (Dao.getWishMode(request.getFrom()) == null) {
+            Dao.addWishMode(request.getFrom(), mode);
+        } else {
+            Dao.updateWishMode(request.getFrom(), mode);
+        }
+        return EmptyMessageChain.INSTANCE.plus("设置成功！当前抽卡模式为：" + modeString);
     }
 
     /**

@@ -28,11 +28,11 @@ public class WishTest {
         Random random = new Random();
         WishStatus wishStatus = new WishStatus();
         Map<Integer, Integer> countMap = new HashMap<>();
-        for (int i = 0; i < 90; i ++) {
+        for (int i = 0; i < 80; i ++) {
             countMap.put(i + 1, 0);
         }
         int count5 = 0, count4 = 0, total = 0;
-        for (int i = 0; i < 100000000; i ++) {
+        for (int i = 0; i < 1000000000; i ++) {
             double prob4 = WishHelper.getNextProb4(wishStatus, 2);
             double prob5 = WishHelper.getNextProb5(wishStatus, 2);
             double current = random.nextDouble();
@@ -56,7 +56,7 @@ public class WishTest {
             }
         }
         log.info("total: {}, count5: {}, count4: {}", total, count5, count4);
-        for (int i = 0; i < 90; i ++) {
+        for (int i = 0; i < 80; i ++) {
             log.info("Times = " + (i + 1) + ", Count = " + countMap.get(i + 1));
         }
     }

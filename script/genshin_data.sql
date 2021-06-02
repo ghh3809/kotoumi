@@ -123,6 +123,7 @@ insert into kotoumi_genshin_unit values (3025, 3, '求罢儿', 4);
 insert into kotoumi_genshin_unit values (3026, 3, '潸然离人笺', 4);
 insert into kotoumi_genshin_unit values (3027, 3, '碎片时间玩玩原魔', 4);
 insert into kotoumi_genshin_unit values (3028, 3, '问好', 4);
+insert into kotoumi_genshin_unit values (3029, 3, '木屐', 5);
 
 # 祈愿池信息
 insert into kotoumi_genshin_wish_event values (1, '角色', '截止1.2版本所有上场过的5星角色', '截止1.2版本所有上场过的4星角色', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
@@ -143,6 +144,7 @@ insert into kotoumi_genshin_wish_event values (204, '武器up', 'up武器：天�
 insert into kotoumi_genshin_wish_event values (205, '武器up', 'up武器：斫风之刃、尘世之锁，非up武器：常驻池五星武器', 'up武器：千岩古剑、千岩长枪、笛剑、昭心、祭礼弓，非up武器：常驻池四星', 2, '2021-04-28 10:00:00', '2021-05-18 17:59:59');
 insert into kotoumi_genshin_wish_event values (206, '武器up', 'up武器：松籁响起之时、风鹰剑，非up武器：常驻池五星武器', 'up武器：祭礼剑、雨裁、匣里灭辰、祭礼残章、弓藏，非up角色：常驻池四星', 2, '2021-05-18 18:00:00', '2021-06-08 14:59:59');
 insert into kotoumi_genshin_wish_event values (301, '群友常驻', '常驻角色：C5、Mio、さやかちゃん、啊噢一、白白、爆哥、风之筝、狐狸、灬0灬0灬、霖、洛雨、泡泡、小十香、兔子、小四、爻爻、ZeroTwo、第八的白泽、莲、南琴、终わらない梦', '常驻角色：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好', 1, '2021-05-02 11:00:00', '2021-05-22 14:59:59');
+insert into kotoumi_genshin_wish_event values (302, '群友up', 'up群友：啊噢一、木屐，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好', 3, '2021-05-23 10:00:00', '2021-06-11 16:59:59');
 
 # 角色池
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1001, 0);
@@ -1166,6 +1168,35 @@ insert into kotoumi_genshin_wish_unit_map values (null, 301, 2033, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 301, 2040, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 301, 2041, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 301, 2042, 0);
+
+# 群友up-第1期
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3029, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3004, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3019, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3020, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3021, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3022, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3026, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 3028, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 302, 2042, 0);
 
 # 卡池信息查询
 select unit_name, is_up from kotoumi_genshin_wish_unit_map as map inner join kotoumi_genshin_unit as unit on map.unit_id = unit.id where map.wish_event_id = 103 and unit.rarity = 5;

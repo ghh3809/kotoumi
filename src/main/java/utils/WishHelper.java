@@ -293,13 +293,15 @@ public class WishHelper {
 
         List<GenshinUnit> available;
         if (rarity == 5) {
-            if (wishStatus.isMustUp() || RANDOM.nextDouble() < upProb) {
+            if (!wishUnitList.getUpStarFiveObject().isEmpty() &&
+                    (wishStatus.isMustUp() || RANDOM.nextDouble() < upProb)) {
                 available = wishUnitList.getUpStarFiveObject();
             } else {
                 available = wishUnitList.getStarFiveObject();
             }
         } else if (rarity == 4) {
-            if (RANDOM.nextDouble() < upProb) {
+            if (!wishUnitList.getUpStarFourObject().isEmpty() &&
+                    RANDOM.nextDouble() < upProb) {
                 available = wishUnitList.getUpStarFourObject();
             } else {
                 available = wishUnitList.getStarFourObject();
