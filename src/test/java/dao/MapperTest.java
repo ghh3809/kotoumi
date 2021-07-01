@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.junit.Test;
 import processor.DialogService;
+import processor.dialogue.UtilDialogService;
 import utils.FileHelper;
 import utils.RequestHelper;
 
@@ -58,7 +59,7 @@ public class MapperTest {
 
     @Test
     public void testSplitMessage() {
-        List<String> messageList = DialogService.splitMessage("123</at>ahshdf<at>张三</at>abc<image>图片01</image>def<at>李四</at>");
+        List<String> messageList = UtilDialogService.splitMessage("123</at>ahshdf<at>张三</at>abc<image>图片01</image>def<at>李四</at>");
         for (String message : messageList) {
             log.info(message);
         }

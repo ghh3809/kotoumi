@@ -24,6 +24,20 @@ import java.util.regex.Pattern;
 public class WishTest {
 
     @Test
+    public void testRegx() {
+        Pattern SAINT_SCORE_PATTERN = Pattern.compile("^.*?位置：(.*?)\\n暴击率：([0-9.]+)%?\\n暴击伤害：([0-9.]+)%?\\n攻击力百分比：([0-9.]+)%?\\n攻击力：([0-9.]+).*$", Pattern.DOTALL);
+        String str = "@风之筝 (请复制本消息并填写副词条信息，发送回群中)\n" +
+                "【圣遗物评分】\n" +
+                "位置：花\n" +
+                "暴击率：3.9%\n" +
+                "暴击伤害：7.8%\n" +
+                "攻击力百分比：10.5%\n" +
+                "攻击力：0";
+        Matcher matcher = SAINT_SCORE_PATTERN.matcher(str);
+        log.info("find: {}", matcher.find());
+    }
+
+    @Test
     public void testWish() {
         Random random = new Random();
         WishStatus wishStatus = new WishStatus();

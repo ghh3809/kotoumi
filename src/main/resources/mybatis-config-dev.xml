@@ -30,6 +30,8 @@
         <mapper resource="mapper/keywordMapper.xml"/>
         <mapper resource="mapper/dailyMapper.xml"/>
         <mapper resource="mapper/eventMapper.xml"/>
+        <mapper resource="mapper/genshinMapper.xml"/>
+        <mapper resource="mapper/saintMapper.xml"/>
     </mappers>
 
 </configuration>

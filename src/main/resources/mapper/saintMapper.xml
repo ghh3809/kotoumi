@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper">
+
+    <insert id="addSaintWish" parameterType="entity.service.DbSaint" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into kotoumi_genshin_saint_wish (
+            user_id, saint_name, pos, level, score, ratio, main_property, sub_properties
+        ) values (
+            #{userId}, #{saintName}, #{pos}, #{level}, #{score}, #{ratio}, #{mainProperty}, #{subProperties}
+        )
+    </insert>
+
+    <select id="getSaintSuit" resultType="entity.service.SaintSuit">
+        select *
+        from kotoumi_genshin_saint_suit
+        where suit_name like concat('%', #{suit_name}, '%')
+    </select>
+
+    <select id="getSaint" resultType="entity.service.DbSaint">
+        select *
+        from kotoumi_genshin_saint_wish
+        where id = #{id}
+    </select>
+
+    <update id="updateSaint" parameterType="entity.service.DbSaint">
+        update kotoumi_genshin_saint_wish
+        set level = #{level}, score = #{score}, ratio = #{ratio}, main_property = #{mainProperty}, sub_properties = #{subProperties}
+        where id = #{id}
+    </update>
+
+    <select id="getBestSaint" resultType="entity.service.DbSaint">
+        select *
+        from kotoumi_genshin_saint_wish
+        where user_id = #{userId} and score > 0
+        order by (ratio + 0) desc
+        limit #{limit}
+    </select>
+
+    <select id="getSaintCount" resultType="Integer">
+        select count(1)
+        from kotoumi_genshin_saint_wish
+        where user_id = #{userId}
+    </select>
+
+</mapper>

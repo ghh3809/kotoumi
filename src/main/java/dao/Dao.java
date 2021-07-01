@@ -1,5 +1,6 @@
 package dao;
 
+import com.alibaba.fastjson.JSON;
 import entity.service.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -267,11 +268,12 @@ public class Dao {
      * @param userId 用户ID
      * @param primogems 原石数量
      */
-    public static void createPrimogems(long userId, int primogems) {
+    public static void createPrimogems(long userId, int primogems, int resin) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("userId", userId);
             hashMap.put("primogems", primogems);
+            hashMap.put("resin", resin);
             session.insert("createPrimogems", hashMap);
             session.commit();
         }
@@ -282,12 +284,13 @@ public class Dao {
      * @param userId 用户ID
      * @param primogems 原石数量
      */
-    public static void addPrimogems(long userId, int primogems, int starlight) {
+    public static void addPrimogems(long userId, int primogems, int starlight, int resin) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("userId", userId);
             hashMap.put("primogems", primogems);
             hashMap.put("starlight", starlight);
+            hashMap.put("resin", resin);
             session.update("addPrimogems", hashMap);
             session.commit();
         }
@@ -454,6 +457,82 @@ public class Dao {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("userId", userId);
             return session.selectOne("getWishMode", hashMap);
+        }
+    }
+
+    /**
+     * 获取圣遗物套装
+     * @param suitName 圣遗物套装
+     * @return 套装信息
+     */
+    public static List<SaintSuit> getSaintSuit(String suitName) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("suit_name", suitName);
+            return session.selectList("getSaintSuit", hashMap);
+        }
+    }
+
+    /**
+     * 保存圣遗物祈愿结果
+     * @param saint 圣遗物
+     */
+    public static void addSaintWish(DbSaint saint) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            session.insert("addSaintWish", saint);
+            session.commit();
+        }
+    }
+
+    /**
+     * 获得圣遗物详情
+     * @param id 圣遗物ID
+     * @return 圣遗物结果
+     */
+    public static DbSaint getSaint(int id) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("id", id);
+            return session.selectOne("getSaint", hashMap);
+        }
+    }
+
+    /**
+     * 更新圣遗物祈愿结果
+     * @param saint 圣遗物
+     */
+    public static void updateSaint(DbSaint saint) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            session.update("updateSaint", saint);
+            session.commit();
+        }
+    }
+
+    /**
+     * 获取最优圣遗物
+     * @param userId 用户ID
+     * @param limit 查看数
+     * @return 圣遗物结果
+     */
+    public static List<DbSaint> getBestSaint(long userId, int limit) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            hashMap.put("limit", limit);
+            return session.selectList("getBestSaint", hashMap);
+        }
+    }
+
+    /**
+     * 获取圣遗物祈愿总数
+     * @param userId 用户ID
+     * @return 圣遗物结果
+     */
+    public static int getSaintCount(long userId) {
+        try (SqlSession session = SQL_MAPPER.openSession()) {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("userId", userId);
+            return session.selectOne("getSaintCount", hashMap);
         }
     }
 

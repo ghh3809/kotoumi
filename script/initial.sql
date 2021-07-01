@@ -32,6 +32,7 @@ CREATE TABLE `kotoumi_genshin_primogems` (
     `user_id` bigint(20) NOT NULL COMMENT '用户id',
     `primogems` int(11) NOT NULL COMMENT '原石数',
     `starlight` int(11) NOT NULL COMMENT '星辉数',
+    `resin` int(11) NOT NULL COMMENT '树脂数',
     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
@@ -79,3 +80,25 @@ CREATE TABLE `kotoumi_genshin_wish_mode` (
     `wish_mode` int(11) NOT NULL COMMENT '招募模式，0普通，1快速，2无图',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人祈愿池招募模式';
+
+CREATE TABLE `kotoumi_genshin_saint_suit` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `suit_name` varchar(20) NOT NULL COMMENT '套装简称',
+    `pos` int(11) NOT NULL COMMENT '位置，0-4',
+    `saint_name` varchar(20) NOT NULL COMMENT '列表形式，圣遗物套装中各圣遗物名称',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人圣遗物祈愿套装';
+
+CREATE TABLE `kotoumi_genshin_saint_wish` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+    `user_id` bigint(20) NOT NULL COMMENT '用户id',
+    `saint_name` varchar(20) NOT NULL COMMENT '圣遗物名称',
+    `pos` int(11) NOT NULL COMMENT '位置，0-4',
+    `level` int(11) NOT NULL COMMENT '圣遗物等级',
+    `score` varchar(10) NOT NULL COMMENT '圣遗物分数',
+    `ratio` varchar(10) NOT NULL COMMENT '圣遗物分位',
+    `main_property` varchar(256) NOT NULL COMMENT '主属性',
+    `sub_properties` varchar(1024) NOT NULL COMMENT '副属性',
+    `wish_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人圣遗物祈愿结果';
