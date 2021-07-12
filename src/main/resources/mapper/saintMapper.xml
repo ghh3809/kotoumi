@@ -7,9 +7,9 @@
 
     <insert id="addSaintWish" parameterType="entity.service.DbSaint" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into kotoumi_genshin_saint_wish (
-            user_id, saint_name, pos, level, score, ratio, main_property, sub_properties
+            user_id, saint_name, pos, level, score, ratio, main_property, sub_properties, enable
         ) values (
-            #{userId}, #{saintName}, #{pos}, #{level}, #{score}, #{ratio}, #{mainProperty}, #{subProperties}
+            #{userId}, #{saintName}, #{pos}, #{level}, #{score}, #{ratio}, #{mainProperty}, #{subProperties}, #{enable}
         )
     </insert>
 
@@ -34,7 +34,11 @@
     <select id="getBestSaint" resultType="entity.service.DbSaint">
         select *
         from kotoumi_genshin_saint_wish
-        where user_id = #{userId} and score > 0
+        where score > 0
+        <if test="userId!=0">
+            and user_id = #{userId}
+        </if>
+        and enable != 0
         order by (ratio + 0) desc
         limit #{limit}
     </select>
@@ -42,7 +46,7 @@
     <select id="getSaintCount" resultType="Integer">
         select count(1)
         from kotoumi_genshin_saint_wish
-        where user_id = #{userId}
+        where user_id = #{userId} and enable != 0
     </select>
 
 </mapper>

@@ -15,7 +15,9 @@ import utils.SaintHelper;
 import entity.service.SaintScore;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -54,6 +56,7 @@ public class SaintDialogService {
     private static final Pattern SAINT_SCORE_PATTERN = Pattern.compile("^.*?位置：(.*?)暴击率：([0-9.]+)%?.*?暴击伤害：([0-9.]+)%?.*?攻击力百分比：([0-9.]+)%?.*?攻击力：([0-9.]+).*$", Pattern.DOTALL);
     private static final Random RANDOM = new Random();
     private static final String SAINT_PIC_DIR = "./pics/saint/";
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH");
 
     /**
      * 进行圣遗物评分
@@ -101,7 +104,12 @@ public class SaintDialogService {
         log.info("Saint wish found");
 
         // 预处理
-        String suitName = matcher.group(1);
+        int enable = 0;
+        String wishCostString = matcher.group(1);
+        if ("抽".equals(wishCostString)) {
+            enable = 1;
+        }
+        String suitName = matcher.group(2);
         if (suitName.contains("套")) {
             suitName = suitName.split("套")[0];
         } else {
@@ -114,13 +122,21 @@ public class SaintDialogService {
         }
         log.info("wishMode: {}, suitName: {}", wishMode, suitName);
 
+        // 校验时间
+        if (enable == 0) {
+            int h = Integer.parseInt(SIMPLE_DATE_FORMAT.format(new Date()));
+            if (h >= 8) {
+                return EmptyMessageChain.INSTANCE.plus("\n为避免打扰正常聊天，白嫖圣遗物仅可以在0:00~8:00进行哦！（更加推荐私聊抹布）");
+            }
+        }
+
         // 校验树脂数量
         PrimoGems primoGemsInfo = Dao.getPrimogems(request.getFrom());
         int resin = 0;
         if (primoGemsInfo != null) {
             resin = primoGemsInfo.getResin();
         }
-        if (resin == 0) {
+        if (resin == 0 && enable == 1) {
             return EmptyMessageChain.INSTANCE.plus("\n抽圣遗物失败，树脂不足！\n当前浓缩树脂数：" + resin + "个");
         }
 
@@ -141,6 +157,7 @@ public class SaintDialogService {
                 SaintHelper.score(saint);
                 log.info("Create saint: {}", JSON.toJSONString(saint));
                 DbSaint dbSaint = new DbSaint(request.getFrom(), saint);
+                dbSaint.setEnable(enable);
                 Dao.addSaintWish(dbSaint);
                 saintList.add(saint);
                 dbSaintList.add(dbSaint);
@@ -150,9 +167,9 @@ public class SaintDialogService {
             }
         }
         log.info("Saint count = {}", saintList.size());
-        Dao.addPrimogems(request.getFrom(), 0, 0, -1);
-        StringBuilder stringBuilder = new StringBuilder("\n抽圣遗物成功！花费浓缩树脂1个，剩余浓缩树脂")
-                .append(resin - 1)
+        Dao.addPrimogems(request.getFrom(), 0, 0, -enable);
+        StringBuilder stringBuilder = new StringBuilder("\n抽圣遗物成功！花费浓缩树脂").append(enable).append("个，剩余浓缩树脂")
+                .append(resin - enable)
                 .append("个\n圣遗物结果：\n");
 
         for (int i = 0; i < saintList.size(); i ++) {
@@ -189,7 +206,11 @@ public class SaintDialogService {
             }
         }
 
-        messageChain = messageChain.plus("\n使用“查看圣遗物{id}”查看圣遗物详情，使用“强化圣遗物{id}”可以进行强化");
+        if (enable == 0) {
+            messageChain = messageChain.plus("当前为白嫖模式，圣遗物不计入统计");
+        } else {
+            messageChain = messageChain.plus("使用“查看圣遗物{id}”查看圣遗物详情，使用“强化圣遗物{id}”可以进行强化\n(tips: “设置图片模式普通”将支持查看图片，但可能造成卡顿，请谨慎选择)");
+        }
         return messageChain;
     }
 
@@ -242,28 +263,44 @@ public class SaintDialogService {
      */
     public static MessageChain find(Request request, Matcher matcher) {
         log.info("Saint find find");
+
+        // 预处理
+        int wishMode = 0;
+        Integer dbWishMode = Dao.getWishMode(request.getFrom());
+        if (dbWishMode != null) {
+            wishMode = dbWishMode;
+        }
+
         int saintId = Integer.parseInt(matcher.group(1));
         DbSaint dbSaint = Dao.getSaint(saintId);
         if (dbSaint == null) {
             return EmptyMessageChain.INSTANCE.plus("\n圣遗物ID不存在！");
-        }
-        if (dbSaint.getUserId() != request.getFrom()) {
-            return EmptyMessageChain.INSTANCE.plus("\n仅支持查看自己的圣遗物！");
         }
         Saint saint = new Saint(dbSaint);
         SaintHelper.score(saint);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("\n圣遗物ID：")
                 .append(saintId)
+                .append("\n拥有者：")
+                .append(dbSaint.getEnable() == 0 ? "无" : dbSaint.getUserId())
                 .append("\n")
                 .append(saint.toString())
                 .append("\n----------\n")
                 .append(getScoreString(saint));
-        if (saint.getLevel() < 20) {
-            stringBuilder.append("\n\n使用“强化圣遗物{id}”可以进行强化");
+
+        MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(stringBuilder);
+
+        if (wishMode == 0) {
+            File file = new File(SAINT_PIC_DIR + saint.getName() + ".png");
+            if (file.exists()) {
+                messageChain = messageChain.plus("\n").plus(UtilDialogService.uploadImage(request, file));
+            }
         }
 
-        return EmptyMessageChain.INSTANCE.plus(stringBuilder);
+        if (saint.getLevel() < 20) {
+            messageChain = messageChain.plus("\n\n使用“强化圣遗物{id}”可以进行强化");
+        }
+        return messageChain;
     }
 
     /**
@@ -296,6 +333,36 @@ public class SaintDialogService {
     }
 
     /**
+     * 圣遗物群排名
+     * @param request 请求
+     * @return 响应
+     */
+    public static MessageChain groupRank(Request request) {
+        log.info("Group Saint find");
+        List<DbSaint> bestSaintList = Dao.getBestSaint(0, 10);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n群内评级最高的10个圣遗物：\n");
+        for (DbSaint dbSaint : bestSaintList) {
+            stringBuilder.append(dbSaint.getId())
+                    .append(". ")
+                    .append(dbSaint.getSaintName())
+                    .append(" [")
+                    .append(POS_DETAIL[dbSaint.getPos()])
+                    .append(" +")
+                    .append(dbSaint.getLevel())
+                    .append("]\n\t拥有者：")
+                    .append(dbSaint.getUserId())
+                    .append("\n\t得分：")
+                    .append(dbSaint.getScore(), 0, dbSaint.getScore().length() - 5)
+                    .append("\t评级：")
+                    .append(SaintHelper.getLevel(Double.parseDouble(dbSaint.getRatio())))
+                    .append("\n");
+        }
+        stringBuilder.append("\n使用“查看圣遗物{id}”可以查看圣遗物详情");
+        return EmptyMessageChain.INSTANCE.plus(stringBuilder);
+    }
+
+    /**
      * 获取得分字符串
      * @param saint 圣遗物
      * @return 得分字符串
@@ -307,7 +374,7 @@ public class SaintDialogService {
             if (score.getRatio() <= 90) {
                 ratioString = String.format("%.0f", score.getRatio());
             } else {
-                ratioString = String.format("%.6f", score.getRatio()).replaceAll("0{2,}", "");
+                ratioString = String.format("%.5f", score.getRatio()).replaceAll("0{2,}", "");
             }
             String valueString, valueString2;
             if (score.getValue() > 1000000) {

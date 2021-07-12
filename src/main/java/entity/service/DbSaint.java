@@ -21,6 +21,7 @@ public class DbSaint {
     private String mainProperty;
     private String subProperties;
     private String wishTime;
+    private Integer enable;
 
     public DbSaint(Long userId, Saint saint) {
         this.userId = userId;
@@ -111,5 +112,13 @@ public class DbSaint {
 
     public void setScore(String score) {
         this.score = score;
+    }
+
+    public Integer getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Integer enable) {
+        this.enable = enable;
     }
 }

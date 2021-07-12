@@ -59,28 +59,45 @@ public class SaintTest {
         saintSuitList.add(new SaintSuit(1L, "如雷", 3, "如雷杯子"));
         saintSuitList.add(new SaintSuit(1L, "如雷", 4, "如雷头"));
 
-        int[] count = new int[] {0, 0, 0, 0, 0};
-        ArrayList<Double> flowerScore = new ArrayList<>();
-        for (int i = 0; i < 100000; i ++) {
+        int count = 0;
+        for (int i = 0; i < 1000000; i ++) {
             Saint saint = Saint.generateSaint(saintSuitList);
-            count[saint.getPos()] ++;
             saint.strengthen();
-            saint.strengthen();
-            saint.strengthen();
-            saint.strengthen();
-            saint.strengthen();
-            SaintHelper.score(saint);
-            if (saint.getPos() == 0) {
-                flowerScore.add(saint.getSaintScore().getScore());
+            int effect = 0;
+            if (saint.getMainProperty().getProperty().equals(PropertyEnum.CRITICAL_PROB) || saint.getMainProperty().getProperty().equals(PropertyEnum.CRITICAL_DMG)) {
+                effect ++;
             }
+            for (Property subProperty : saint.getSubProperties()) {
+                if (subProperty.getProperty().equals(PropertyEnum.CRITICAL_PROB) || subProperty.getProperty().equals(PropertyEnum.CRITICAL_DMG)) {
+                    effect ++;
+                }
+            }
+            if (effect == 2) {
+                count ++;
+            }
+
         }
-        log.info(Arrays.toString(count));
-        flowerScore.sort(Double::compare);
-        log.info("50% = {}", flowerScore.get((int) (count[0] * 0.5)));
-        log.info("90% = {}", flowerScore.get((int) (count[0] * 0.9)));
-        log.info("95% = {}", flowerScore.get((int) (count[0] * 0.95)));
-        log.info("99% = {}", flowerScore.get((int) (count[0] * 0.99)));
-        log.info("99.9% = {}", flowerScore.get((int) (count[0] * 0.999)));
+        log.info("双爆圣遗物比例：{}%", count * 100.0 / 1000000);
+    }
+
+    @Test
+    public void testUnit() {
+        log.info(utterance());
+    }
+
+    private String utterance() {
+        // 请求URL
+        String talkUrl = "https://aip.baidubce.com/rpc/2.0/unit/bot/chat";
+        try {
+            // 请求参数
+            String params = "{\"bot_id\": \"1057439\",\"bot_session\": \"\",\"log_id\": \"UNITTEST_20210604144315_1493400726\",\"request\": {\"query\": \"测试\",\"user_id\": \"1452630069_1\"},\"version\": \"2.0\"}";
+            String accessToken = "24.a987331387e146e21d70dce59a069125.2592000.1628253263.282335-16827442";
+            String result = HttpUtil.post(talkUrl, accessToken, "application/json", params);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

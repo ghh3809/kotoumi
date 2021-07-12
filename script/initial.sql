@@ -100,5 +100,7 @@ CREATE TABLE `kotoumi_genshin_saint_wish` (
     `main_property` varchar(256) NOT NULL COMMENT '主属性',
     `sub_properties` varchar(1024) NOT NULL COMMENT '副属性',
     `wish_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `enable` tinyint NOT NULL DEFAULT 1 COMMENT '是否有效',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人圣遗物祈愿结果';
+

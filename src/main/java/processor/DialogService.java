@@ -38,7 +38,7 @@ public class DialogService {
     private static final Pattern CHOICE_PATTERN = Pattern.compile("^\\d$");
     private static final Pattern KEYWORD_ADD_PATTERN = Pattern.compile("^问[ _](.+?)[ _]答[ _](.+)$", Pattern.DOTALL);
     private static final Pattern WISH_PATTERN = Pattern.compile("^(普通|快速|无图|)(抽卡|单抽|10连|十连)(.+?)池.*$");
-    private static final Pattern WISH_SAINT_PATTERN = Pattern.compile("^抽圣遗物(.*)$");
+    private static final Pattern WISH_SAINT_PATTERN = Pattern.compile("^(抽|白嫖)圣遗物(.*)$");
     private static final Pattern STRENGTH_SAINT_PATTERN = Pattern.compile("^强化圣遗物([0-9]+).*$");
     private static final Pattern FIND_SAINT_PATTERN = Pattern.compile("^查看圣遗物([0-9]+).*$");
     private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.+?)_(.+)$");
@@ -63,6 +63,7 @@ public class DialogService {
     private static final String CURRENT_WISH_KEYWORD = "当前卡池";
     private static final String SAINT_SCORE_KEYWORD1 = "圣遗物评分";
     private static final String SAINT_SCORE_KEYWORD2 = "圣遗物分数";
+    private static final String SAINT_RANK_KEYWORD = "圣遗物排名";
 
     private static final Random RANDOM = new Random();
 
@@ -204,6 +205,9 @@ public class DialogService {
         } else if (findSaintMatcher.find()) {
             // 查看圣遗物
             return SaintDialogService.find(request, findSaintMatcher);
+        } else if (request.getQuery().equals(SAINT_RANK_KEYWORD)) {
+            // 群圣遗物排名
+            return SaintDialogService.groupRank(request);
         }
 
         // 群自定义词库
