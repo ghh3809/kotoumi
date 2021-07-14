@@ -133,7 +133,7 @@ public class SifDialogService {
                 .append("\n")
                 .append("歌榜二档(Rk. 6900): \n")
                 .append(live2 > 0 ? (live2 + " (" + timeLive2 + ", +" + changeLive2 + "/h)") : "未知")
-                .append("\n----------\n若发现档线更新不及时，可以接入海鸟站（http://kotoumi.top）并在游戏中查看对应档线帮我恢复哦~");
+                .append("\n----------\n【公告】\n海鸟站（http://kotoumi.top）及本机器人将于近期停止服务，请各位同学及时保存个人数据。有想要接手的同学欢迎随时联系管理~");
         return EmptyMessageChain.INSTANCE.plus(stringBuilder);
 
     }
