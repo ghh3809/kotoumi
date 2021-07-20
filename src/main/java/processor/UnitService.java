@@ -1,6 +1,7 @@
 package processor;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import entity.request.DialogueRequest;
 import entity.response.DialogueResponse;
@@ -10,6 +11,7 @@ import utils.ConfigHelper;
 import utils.RequestHelper;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author guohaohao
@@ -37,13 +39,15 @@ public class UnitService {
 
         // 准备sessionId
         String sessionId = null;
+        JSONArray sysPresumedHist = null;
         if (SESSION_STATUS_MAP.containsKey(userId)) {
             SessionStatus sessionStatus = SESSION_STATUS_MAP.get(userId);
             if (System.currentTimeMillis() - sessionStatus.lastChatTime < MAX_SESSION_TIME) {
                 sessionId = sessionStatus.sessionId;
+                sysPresumedHist = sessionStatus.sysPresumedHist;
             }
         }
-        DialogueRequest dialogueRequest = DialogueRequest.getInstance(userId, query, sessionId);
+        DialogueRequest dialogueRequest = DialogueRequest.getInstance(userId, query, sessionId, sysPresumedHist);
 
         // 准备accessToken
         if (System.currentTimeMillis() >= accessTokeExpireTime) {
@@ -51,16 +55,18 @@ public class UnitService {
         }
 
         // 请求unit服务
-        String url = String.format("https://aip.baidubce.com/rpc/2.0/unit/bot/chat?access_token=%s", accessToken);
+        String url = String.format("https://aip.baidubce.com/rpc/2.0/unit/service/chat?access_token=%s", accessToken);
         String response = RequestHelper.httpPost(url, dialogueRequest);
         if (response != null) {
             DialogueResponse dialogueResponse = JSON.parseObject(response, DialogueResponse.class);
             if (dialogueResponse.getErrorCode() == 0) {
-                sessionId = JSON.parseObject(dialogueResponse.getResult().getBotSession()).getString("session_id");
+                sessionId = dialogueResponse.getResult().getSessionId();
+                sysPresumedHist = dialogueResponse.getResult().getDialogState().getJSONObject("contexts")
+                        .getJSONArray("SYS_PRESUMED_HIST");
                 if (StringUtils.isNotBlank(sessionId)) {
-                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, System.currentTimeMillis()));
+                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, sysPresumedHist, System.currentTimeMillis()));
                 }
-                return dialogueResponse.getResult().getResponse().getActionList().get(0).getSay();
+                return dialogueResponse.getResult().getResponseList().get(0).getActionList().get(0).getSay();
             } else {
                 log.error("Request unit service failed: error code {}", dialogueResponse.getErrorCode());
                 return null;
@@ -91,10 +97,12 @@ public class UnitService {
     private static class SessionStatus {
 
         String sessionId;
+        JSONArray sysPresumedHist;
         long lastChatTime;
 
-        SessionStatus(String sessionId, long lastChatTime) {
+        SessionStatus(String sessionId, JSONArray sysPresumedHist, long lastChatTime) {
             this.sessionId = sessionId;
+            this.sysPresumedHist = sysPresumedHist;
             this.lastChatTime = lastChatTime;
         }
 

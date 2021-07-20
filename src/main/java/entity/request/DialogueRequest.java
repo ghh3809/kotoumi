@@ -1,66 +1,38 @@
 package entity.request;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import constant.BotInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 import utils.LoggerHelper;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class DialogueRequest extends Request {
 
+    private String version;
     @JSONField(name = "log_id")
     private String logId;
     @JSONField(name = "bot_id")
     private String botId;
+    @JSONField(name = "service_id")
+    private String serviceId;
     @JSONField(name = "bot_session")
     private String botSession;
     @JSONField(name = "session_id")
-    private String version;
+    private String sessionId;
+    @JSONField(name = "dialog_state")
+    private JSONObject dialogState;
     private Request request;
 
     private DialogueRequest() {
 
     }
 
-    public String getLogId() {
-        return logId;
-    }
-
-    public void setLogId(String logId) {
-        this.logId = logId;
-    }
-
-    public String getBotId() {
-        return botId;
-    }
-
-    public void setBotId(String botId) {
-        this.botId = botId;
-    }
-
-    public String getBotSession() {
-        return botSession;
-    }
-
-    public void setBotSession(String botSession) {
-        this.botSession = botSession;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public Request getRequest() {
-        return request;
-    }
-
-    public void setRequest(Request request) {
-        this.request = request;
-    }
-
+    @Data
     public static class Request {
         @JSONField(name = "user_id")
         private String userId;
@@ -77,30 +49,6 @@ public class DialogueRequest extends Request {
                 hyperParams.put("chat_default_bot_profile", 0);
             }
         }
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
-        }
-
-        public String getQuery() {
-            return query;
-        }
-
-        public void setQuery(String query) {
-            this.query = query;
-        }
-
-        public JSONObject getHyperParams() {
-            return hyperParams;
-        }
-
-        public void setHyperParams(JSONObject hyperParams) {
-            this.hyperParams = hyperParams;
-        }
     }
 
     /**
@@ -110,16 +58,18 @@ public class DialogueRequest extends Request {
      * @param sessionId sessionId
      * @return 对话请求
      */
-    public static DialogueRequest getInstance(String userId, String query, String sessionId) {
+    public static DialogueRequest getInstance(String userId, String query, String sessionId, JSONArray sysPresumedHist) {
         DialogueRequest dialogueRequest = new DialogueRequest();
         dialogueRequest.logId = LoggerHelper.getRandomID(10);
         dialogueRequest.version = "2.0";
         dialogueRequest.botId = BotInfo.UNIT_BOT_ID;
-        if (sessionId == null) {
-            dialogueRequest.botSession = "";
-        } else {
-            dialogueRequest.botSession = String.format("{\"session_id\":\"%s\"}", sessionId);
-        }
+        dialogueRequest.serviceId = BotInfo.UNIT_SERVICE_ID;
+        dialogueRequest.sessionId = StringUtils.isBlank(sessionId) ? "" : sessionId;
+        dialogueRequest.dialogState = new JSONObject();
+        JSONObject contexts = new JSONObject();
+        contexts.put("SYS_REMEMBERED_SKILLS", BotInfo.UNIT_SKILL_IDS);
+        contexts.put("SYS_PRESUMED_HIST", sysPresumedHist);
+        dialogueRequest.dialogState.put("contexts", contexts);
         dialogueRequest.request = new Request(userId, query, false);
         return dialogueRequest;
     }

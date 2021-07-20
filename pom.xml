@@ -10,6 +10,7 @@
 
     <properties>
         <kotlin.version>1.4.10</kotlin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
@@ -48,6 +49,7 @@
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
                 </configuration>
+                <version>1.4.10</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -156,8 +158,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.16</version>
         </dependency>
-
-
 
     </dependencies>
 

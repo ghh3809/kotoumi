@@ -1,5 +1,6 @@
 package entity.response;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
@@ -20,10 +21,12 @@ public class DialogueResponse {
     @Data
     public static class Result {
 
-        @JSONField(name = "bot_session")
-        private String botSession;
-        @JSONField(name = "response")
-        private ResultResponse response;
+        @JSONField(name = "session_id")
+        private String sessionId;
+        @JSONField(name = "dialog_state")
+        private JSONObject dialogState;
+        @JSONField(name = "response_list")
+        private List<ResultResponse> responseList;
 
         @Data
         public static class ResultResponse {
