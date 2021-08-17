@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.MessageChain;
 import entity.service.Saint;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import utils.SaintHelper;
 import entity.service.SaintScore;
 
@@ -196,22 +197,22 @@ public class SaintDialogService {
 
         }
 
-        MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(stringBuilder);
+        MessageChainBuilder messageChain = new MessageChainBuilder().append(stringBuilder);
 
         // 图片展示
         for (String name : saintName) {
             File file = new File(SAINT_PIC_DIR + name + ".png");
             if (file.exists()) {
-                messageChain = messageChain.plus(UtilDialogService.uploadImage(request, file)).plus("\n");
+                messageChain = messageChain.append(UtilDialogService.uploadImage(request, file)).append("\n");
             }
         }
 
         if (enable == 0) {
-            messageChain = messageChain.plus("当前为白嫖模式，圣遗物不计入统计");
+            messageChain = messageChain.append("当前为白嫖模式，圣遗物不计入统计");
         } else {
-            messageChain = messageChain.plus("使用“查看圣遗物{id}”查看圣遗物详情，使用“强化圣遗物{id}”可以进行强化\n(tips: “设置图片模式普通”将支持查看图片，但可能造成卡顿，请谨慎选择)");
+            messageChain = messageChain.append("使用“查看圣遗物{id}”查看圣遗物详情，使用“强化圣遗物{id}”可以进行强化\n(tips: “设置图片模式普通”将支持查看图片，但可能造成卡顿，请谨慎选择)");
         }
-        return messageChain;
+        return messageChain.build();
     }
 
     /**
@@ -288,19 +289,19 @@ public class SaintDialogService {
                 .append("\n----------\n")
                 .append(getScoreString(saint));
 
-        MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(stringBuilder);
+        MessageChainBuilder messageChain = new MessageChainBuilder().append(stringBuilder);
 
         if (wishMode == 0) {
             File file = new File(SAINT_PIC_DIR + saint.getName() + ".png");
             if (file.exists()) {
-                messageChain = messageChain.plus("\n").plus(UtilDialogService.uploadImage(request, file));
+                messageChain = messageChain.append("\n").append(UtilDialogService.uploadImage(request, file));
             }
         }
 
         if (saint.getLevel() < 20) {
-            messageChain = messageChain.plus("\n\n使用“强化圣遗物{id}”可以进行强化");
+            messageChain = messageChain.append("\n\n使用“强化圣遗物{id}”可以进行强化");
         }
-        return messageChain;
+        return messageChain.build();
     }
 
     /**

@@ -12,6 +12,7 @@ import entity.service.WishSummary;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import utils.WishHelper;
 
 import java.io.File;
@@ -120,13 +121,13 @@ public class WishDialogService {
                         .append("\n");
             }
         }
-        MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(stringBuilder);
+        MessageChainBuilder messageChain = new MessageChainBuilder().append(stringBuilder);
 
         // 图片展示
         for (Long id : picUnits) {
             File file = new File(GENSHIN_PIC_DIR + id + ".png");
             if (file.exists()) {
-                messageChain = messageChain.plus(UtilDialogService.uploadImage(request, file)).plus("\n");
+                messageChain = messageChain.append(UtilDialogService.uploadImage(request, file)).append("\n");
             }
         }
 
@@ -136,7 +137,7 @@ public class WishDialogService {
         stringBuilder.append("距离下次4★保底还剩：").append(10 - wishStatus.getStar4Count()).append("抽\n");
         stringBuilder.append("距离下次5★保底还剩：").append(wishStatus.getMaxFiveCount() - wishStatus.getStar5Count()).append("抽");
 
-        return messageChain.plus(stringBuilder);
+        return messageChain.append(stringBuilder).build();
     }
 
     /**
@@ -192,11 +193,11 @@ public class WishDialogService {
                     stringBuilder4.append("暂无\n");
                 }
                 stringBuilder4.deleteCharAt(stringBuilder4.length() - 1);
-                MessageChain messageChain = EmptyMessageChain.INSTANCE;
-                messageChain = messageChain.plus(stringBuilder5);
-                messageChain = messageChain.plus(stringBuilder4);
+                MessageChainBuilder messageChain = new MessageChainBuilder();
+                messageChain = messageChain.append(stringBuilder5);
+                messageChain = messageChain.append(stringBuilder4);
 
-                return messageChain;
+                return messageChain.build();
             }
         }
         return null;

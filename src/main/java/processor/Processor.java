@@ -8,15 +8,16 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.message.FriendMessageEvent;
-import net.mamoe.mirai.message.GroupMessageEvent;
-import net.mamoe.mirai.message.MessageEvent;
-import net.mamoe.mirai.message.TempMessageEvent;
+import net.mamoe.mirai.event.events.FriendMessageEvent;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.GroupTempMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Face;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.message.data.SingleMessage;
 import utils.LoggerHelper;
@@ -43,7 +44,7 @@ public class Processor {
      * @param messageEvent 消息时间
      * @return 响应结果
      */
-    public static Message processMessage(MessageEvent messageEvent) {
+    private static Message processMessage(MessageEvent messageEvent) {
 
         // 消息来源bot
         Bot bot = messageEvent.getBot();
@@ -76,7 +77,7 @@ public class Processor {
         MessageChain dialogResponse;
         if (messageEvent instanceof GroupMessageEvent && sender instanceof Member) {
             GroupMessageEvent groupMessageEvent = (GroupMessageEvent) messageEvent;
-            MessageChain atMessage = new At((Member) sender).plus(" ");
+            MessageChainBuilder atMessage = new MessageChainBuilder().append(new At(sender.getId())).append(" ");
             dialogResponse = DialogService.response(atMessage, new Request(
                     sender.getId(),
                     query,
@@ -90,8 +91,8 @@ public class Processor {
             if (dialogResponse == null) {
                 return null;
             }
-        } else if (messageEvent instanceof TempMessageEvent) {
-            TempMessageEvent tempMessageEvent = (TempMessageEvent) messageEvent;
+        } else if (messageEvent instanceof GroupTempMessageEvent) {
+            GroupTempMessageEvent tempMessageEvent = (GroupTempMessageEvent) messageEvent;
             dialogResponse = DialogService.response(null, new Request(
                     sender.getId(),
                     query,

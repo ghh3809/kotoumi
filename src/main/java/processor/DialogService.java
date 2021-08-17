@@ -2,12 +2,14 @@ package processor;
 
 import constant.MessageSource;
 import constant.MultiTurnTask;
+import dao.Dao;
 import entity.service.Keyword;
 import entity.service.MultiTurnStatus;
 import entity.service.Request;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import processor.dialogue.SaintDialogService;
 import processor.dialogue.SifDialogService;
 import processor.dialogue.SystemDialogService;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,8 +33,6 @@ public class DialogService {
 
     public static final ConcurrentHashMap<String, MultiTurnStatus> MULTI_TURN_STATUS_MAP = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Long, HashMap<String, List<Keyword>>> KEYWORD_MAP = new ConcurrentHashMap<>();
-
-    private static final long LIMITED_GROUP = 709375205L;
 
     /**
      * query正则表达式
@@ -67,12 +69,16 @@ public class DialogService {
 
     private static final Random RANDOM = new Random();
 
-    public static MessageChain response(MessageChain at, Request request) {
+    static {
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(() -> Dao.getSaint(1), 1, 1, TimeUnit.MINUTES);
+    }
+
+    public static MessageChain response(MessageChainBuilder at, Request request) {
         ResponseFlag responseFlag = new ResponseFlag();
         MessageChain messageChain = response(request, responseFlag);
         if (messageChain != null) {
             if (at != null && responseFlag.needAt) {
-                return at.plus(messageChain);
+                return at.append(messageChain).build();
             } else {
                 return messageChain;
             }
@@ -116,18 +122,8 @@ public class DialogService {
             }
         }
 
-        // 被限制的群聊：海鸟阁，仅支持档线
-        Matcher rankMatcher = SIF_RANK_PATTERN.matcher(request.getQuery());
-        if (request.getGroup() != null && request.getGroup().getId() == LIMITED_GROUP) {
-            if (rankMatcher.find()) {
-                // 国服档线
-                return SifDialogService.sifRank(request);
-            } else {
-                return null;
-            }
-        }
-
         // 搜索内置关键字
+        Matcher rankMatcher = SIF_RANK_PATTERN.matcher(request.getQuery());
         Matcher addKeywordMatcher = KEYWORD_ADD_PATTERN.matcher(request.getQuery());
         Matcher wishMatcher = WISH_PATTERN.matcher(request.getQuery());
         Matcher addPrimogemsMatcher = ADD_PRIMOGEMS_PATTERN.matcher(request.getQuery());

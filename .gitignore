@@ -29,6 +29,6 @@ output/
 deviceInfo.json
 src/main/resources/mybatis-config.xml
 src/main/resources/config.properties
-src/main/java/loader/MyLoader.kt
+src/main/java/loader/JavaLoader.java
 .idea/
 .DS_Store

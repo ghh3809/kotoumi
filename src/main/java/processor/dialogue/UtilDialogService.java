@@ -7,6 +7,8 @@ import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.Face;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.utils.ExternalResource;
 import processor.DialogService;
 
 import java.io.File;
@@ -43,12 +45,9 @@ public class UtilDialogService {
         }
         try {
             if (request.getMessageSource().equals(MessageSource.GROUP)) {
-                // 备注：虽然不知道为什么这里要上传两遍，但是少任意一个都不能用……
-                // UPDATE: 好像不加这句可以用了，诶嘿
-                // request.getGroup().getBotAsMember().uploadImage(image);
-                return EmptyMessageChain.INSTANCE.plus(request.getGroup().uploadImage(image));
+                return EmptyMessageChain.INSTANCE.plus(ExternalResource.uploadAsImage(image, request.getGroup()));
             } else {
-                return EmptyMessageChain.INSTANCE.plus(request.getBot().getSelfQQ().uploadImage(image));
+                return EmptyMessageChain.INSTANCE.plus(ExternalResource.uploadAsImage(image, request.getGroup()));
             }
         } finally {
             synchronized (DialogService.class) {
@@ -65,24 +64,24 @@ public class UtilDialogService {
      */
     public static MessageChain responsePattern(String response, Request request) {
         // 初始化
-        MessageChain messageChain = EmptyMessageChain.INSTANCE;
+        MessageChainBuilder messageChain = new MessageChainBuilder();
         List<String> messageList = splitMessage(response);
         for (String message : messageList) {
             String tag = checkTag(message);
             if (tag == null) {
-                messageChain = messageChain.plus(message);
+                messageChain = messageChain.append(message);
             } else if ("at".equals(tag)) {
                 long id = Long.parseLong(message.substring(4, message.length() - 5));
-                messageChain = messageChain.plus(new At(request.getGroup().get(id)));
+                messageChain = messageChain.append(new At(id));
             } else if ("face".equals(tag)) {
                 int id = Integer.parseInt(message.substring(6, message.length() - 7));
-                messageChain = messageChain.plus(new Face(id));
+                messageChain = messageChain.append(new Face(id));
             } else if ("image".equals(tag)) {
                 String id = message.substring(7, message.length() - 8);
-                messageChain = messageChain.plus(UtilDialogService.uploadImage(request, new File(CHAT_PIC_DIR + id)));
+                messageChain = messageChain.append(UtilDialogService.uploadImage(request, new File(CHAT_PIC_DIR + id)));
             }
         }
-        return messageChain;
+        return messageChain.build();
     }
 
     /**

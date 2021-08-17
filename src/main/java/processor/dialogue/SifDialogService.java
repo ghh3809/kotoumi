@@ -11,6 +11,7 @@ import entity.service.Unit;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import org.apache.commons.lang3.StringUtils;
 import processor.DialogService;
 import utils.FileHelper;
@@ -272,12 +273,12 @@ public class SifDialogService {
             log.error("Get skill description error: {}", e.fillInStackTrace().toString());
         }
 
-        MessageChain messageChain = EmptyMessageChain.INSTANCE.plus(UtilDialogService.uploadImage(request, file));
-        messageChain = messageChain.plus("\nID：" + cardNumber);
+        MessageChainBuilder messageChain = new MessageChainBuilder().append(UtilDialogService.uploadImage(request, file));
+        messageChain = messageChain.append("\nID：").append(String.valueOf(cardNumber));
         if (skillDescription != null) {
-            messageChain = messageChain.plus("\n技能(" + skillLevel + "级)：" + skillDescription);
+            messageChain = messageChain.append("\n技能(").append(String.valueOf(skillLevel)).append("级)：").append(skillDescription);
         }
-        return messageChain;
+        return messageChain.build();
     }
 
     /**
@@ -285,7 +286,7 @@ public class SifDialogService {
      * @param content 内容
      * @return 成员tag
      */
-    public static UnitTag extractUnitName(String content) {
+    private static UnitTag extractUnitName(String content) {
         if (content.contains("南小鸟")) {
             return new UnitTag(content.replaceFirst("南小鸟", ""), "南琴梨");
         } else if (content.contains("小鸟")) {

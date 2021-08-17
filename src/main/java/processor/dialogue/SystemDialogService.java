@@ -9,7 +9,9 @@ import entity.service.Request;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
+import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import processor.DialogService;
 import utils.FileHelper;
 
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -182,8 +185,9 @@ public class SystemDialogService {
         if (daily.getDrawResult() == 0) {
             int drawResult = RANDOM.nextInt(DRAW_TEXT.length) + 1;
             Dao.updateDailyDraw(request.getGroup().getId(), request.getFrom(), day, drawResult);
-            return EmptyMessageChain.INSTANCE.plus("抽签成功！\n你今天的运势为：\n")
-                    .plus(UtilDialogService.uploadImage(request, new File(DRAW_PIC_DIR + drawResult + ".jpg")));
+            return new MessageChainBuilder().append("抽签成功！\n你今天的运势为：\n")
+                    .append(UtilDialogService.uploadImage(request, new File(DRAW_PIC_DIR + drawResult + ".jpg")))
+                    .build();
         } else {
             return EmptyMessageChain.INSTANCE.plus("你今天已经抽签过了，请明天再来~~\n你今天的运势为：" + DRAW_TEXT[daily.getDrawResult() - 1]);
         }
@@ -260,9 +264,11 @@ public class SystemDialogService {
         Dao.addKeyword(keyword);
         long id = Dao.getId(request.getGroup().getId());
         DialogService.KEYWORD_MAP.put(request.getGroup().getId(), buildKeywordMap(request.getGroup().getId()));
-        return EmptyMessageChain.INSTANCE.plus("学到新知识了呢(ID: " + id + ")~不信你回复“")
-                .plus(UtilDialogService.responsePattern(key, request))
-                .plus("”试试~");
+        return new MessageChainBuilder().append("学到新知识了呢(ID: ")
+                .append(String.valueOf(id))
+                .append(")~不信你回复“")
+                .append(UtilDialogService.responsePattern(key, request))
+                .append("”试试~").build();
     }
 
     /**
@@ -299,8 +305,8 @@ public class SystemDialogService {
                 if (keyword == null) {
                     return EmptyMessageChain.INSTANCE.plus("词库不存在，请使用指令：“查询词库[{词库ID/关键词}][_起始_{起始编号}]”");
                 } else {
-                    return EmptyMessageChain.INSTANCE.plus("查询到以下结果：")
-                            .plus(responseKeywords(Collections.singletonList(keyword), request));
+                    return new MessageChainBuilder().append("查询到以下结果：")
+                            .append(responseKeywords(Collections.singletonList(keyword), request)).build();
                 }
             } else {
                 // 说明是按关键词进行查看
@@ -309,9 +315,12 @@ public class SystemDialogService {
                     return EmptyMessageChain.INSTANCE.plus("词库不存在，请使用指令：“查询词库[{词库ID/关键词}][_起始_{起始编号}]”");
                 } else {
                     int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query);
-                    return EmptyMessageChain.INSTANCE.plus("查询到以下结果：")
-                            .plus(responseKeywords(keywordList, request))
-                            .plus("\n----------\n当前显示第" + startIndex + "-" + (startIndex + keywordList.size() - 1) + "条，共" + totalCount + "条");
+                    return new MessageChainBuilder().append("查询到以下结果：")
+                            .append(responseKeywords(keywordList, request)).append("\n----------\n当前显示第")
+                            .append(String.valueOf(startIndex)).append("-")
+                            .append(String.valueOf(startIndex + keywordList.size() - 1))
+                            .append("条，共").append(String.valueOf(totalCount)).append("条")
+                            .build();
                 }
             }
         } else {
@@ -344,11 +353,13 @@ public class SystemDialogService {
                 return EmptyMessageChain.INSTANCE.plus("词库不存在，请使用指令：“删除词库{词库ID/关键词}”");
             } else {
                 if (request.getFrom() == keyword.getCreatorId() ||
-                        request.getGroup().get(request.getFrom()).getPermission().compareTo(MemberPermission.ADMINISTRATOR) >= 0) {
+                        Objects.requireNonNull(request.getGroup().get(request.getFrom())).getPermission()
+                                .compareTo(MemberPermission.ADMINISTRATOR) >= 0) {
                     Dao.deleteKeyword(request.getGroup().getId(), keywordId);
                     DialogService.KEYWORD_MAP.put(request.getGroup().getId(), buildKeywordMap(request.getGroup().getId()));
-                    return EmptyMessageChain.INSTANCE.plus("已删除：")
-                            .plus(responseKeywords(Collections.singletonList(keyword), request));
+                    return new MessageChainBuilder().append("已删除：")
+                            .append(responseKeywords(Collections.singletonList(keyword), request))
+                            .build();
                 } else {
                     return EmptyMessageChain.INSTANCE.plus("无权删除，请联系词库创建者(" + keyword.getCreatorId() + ")或管理员删除");
                 }
@@ -362,19 +373,23 @@ public class SystemDialogService {
                 if (keywordList.size() == 1) {
                     Keyword keyword = keywordList.get(0);
                     if (request.getFrom() == keyword.getCreatorId() ||
-                            request.getGroup().get(request.getFrom()).getPermission().compareTo(MemberPermission.ADMINISTRATOR) >= 0) {
+                            Objects.requireNonNull(request.getGroup().get(request.getFrom())).getPermission()
+                                    .compareTo(MemberPermission.ADMINISTRATOR) >= 0) {
                         Dao.deleteKeyword(request.getGroup().getId(), keyword.getId());
                         DialogService.KEYWORD_MAP.put(request.getGroup().getId(), buildKeywordMap(request.getGroup().getId()));
-                        return EmptyMessageChain.INSTANCE.plus("已删除：")
-                                .plus(responseKeywords(Collections.singletonList(keyword), request));
+                        return new MessageChainBuilder().append("已删除：")
+                                .append(responseKeywords(Collections.singletonList(keyword), request))
+                                .build();
                     } else {
                         return EmptyMessageChain.INSTANCE.plus("无权删除，请联系词库创建者(" + keyword.getCreatorId() + ")或管理员删除");
                     }
                 } else {
                     int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query);
-                    return EmptyMessageChain.INSTANCE.plus("查询到以下结果：")
-                            .plus(responseKeywords(keywordList, request))
-                            .plus("\n----------\n当前显示第1-" + keywordList.size() + "条，共" + totalCount + "条。请直接回复“删除词库{词库ID}”进行删除");
+                    return new MessageChainBuilder().append("查询到以下结果：")
+                            .append(responseKeywords(keywordList, request)).append("\n----------\n当前显示第1-")
+                            .append(String.valueOf(keywordList.size())).append("条，共")
+                            .append(String.valueOf(totalCount)).append("条。请直接回复“删除词库{词库ID}”进行删除")
+                            .build();
                 }
             }
         }
@@ -402,7 +417,7 @@ public class SystemDialogService {
             String imageId = valueParts[i].split("</image>")[0];
             File file = new File(CHAT_PIC_DIR + imageId);
             if (!file.exists()) {
-                String url = request.getBot().queryImageUrl(request.getImageMap().get(imageId));
+                String url = Image.queryUrl(request.getImageMap().get(imageId));
                 file = FileHelper.download(url, file);
                 if (file == null) {
                     return false;
@@ -419,16 +434,16 @@ public class SystemDialogService {
      * @return 返回
      */
     public static MessageChain responseKeywords(List<Keyword> keywordList, Request request) {
-        MessageChain messageChain = EmptyMessageChain.INSTANCE;
+        MessageChainBuilder messageChain = new MessageChainBuilder();
         for (Keyword keyword : keywordList) {
-            messageChain = messageChain.plus("\n----------\n");
-            messageChain = messageChain.plus("ID: " + keyword.getId() + "\n关键词：");
-            messageChain = messageChain.plus(UtilDialogService.responsePattern(keyword.getKeyword(), request));
-            messageChain = messageChain.plus("\n回复内容: ");
-            messageChain = messageChain.plus(UtilDialogService.responsePattern(keyword.getResponse(), request));
-            messageChain = messageChain.plus("\n添加人：" + keyword.getCreatorId());
+            messageChain = messageChain.append("\n----------\n");
+            messageChain = messageChain.append("ID: ").append(String.valueOf(keyword.getId())).append("\n关键词：");
+            messageChain = messageChain.append(UtilDialogService.responsePattern(keyword.getKeyword(), request));
+            messageChain = messageChain.append("\n回复内容: ");
+            messageChain = messageChain.append(UtilDialogService.responsePattern(keyword.getResponse(), request));
+            messageChain = messageChain.append("\n添加人：").append(String.valueOf(keyword.getCreatorId()));
         }
-        return messageChain;
+        return messageChain.build();
     }
 
     /**
