@@ -143,10 +143,13 @@ public class Processor {
         for (SingleMessage message : messageChain) {
             if (message instanceof Image) {
                 Image image = (Image) message;
+                // 适配原始miraiId格式，使用.mirai后缀
+                String imageId = image.getImageId();
+                imageId = imageId.substring(0, imageId.length() - 4) + ".mirai";
                 if (imageMap != null) {
-                    imageMap.put(image.getImageId(), image);
+                    imageMap.put(imageId, image);
                 }
-                stringBuilder.append("<image>").append(image.getImageId()).append("</image>");
+                stringBuilder.append("<image>").append(imageId).append("</image>");
             } else if (message instanceof At) {
                 At at = (At) message;
                 if (at.getTarget() == BotInfo.ID) {

@@ -5,21 +5,14 @@ import entity.service.Property;
 import entity.service.PropertyEnum;
 import entity.service.Saint;
 import entity.service.SaintSuit;
-import entity.service.WishStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import utils.SaintHelper;
-import utils.WishHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 public class SaintTest {

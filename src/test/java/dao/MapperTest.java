@@ -3,15 +3,12 @@ package dao;
 import com.alibaba.fastjson.JSON;
 import entity.service.Keyword;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.junit.Test;
-import processor.DialogService;
+import org.junit.jupiter.api.Test;
 import processor.dialogue.UtilDialogService;
 import utils.FileHelper;
 import utils.RequestHelper;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

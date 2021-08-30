@@ -1,21 +1,12 @@
 package dao;
 
-import com.alibaba.fastjson.JSON;
-import entity.service.Keyword;
 import entity.service.WishStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import processor.DialogService;
-import utils.FileHelper;
-import utils.RequestHelper;
+import org.junit.jupiter.api.Test;
 import utils.WishHelper;
 
-import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,6 +64,69 @@ public class WishTest {
         for (int i = 0; i < 80; i ++) {
             log.info("Times = " + (i + 1) + ", Count = " + countMap.get(i + 1));
         }
+    }
+
+    @Test
+    public void testWish2() {
+        // 每单能抽多少发
+        double wishFrom648 = 8080.0 / 160;
+        double value5 = 62.5 / wishFrom648 * 648;
+        int cost = 3300;
+        int minPayTime = 4;
+        boolean isWell = true;
+        Random random = new Random();
+        Map<Integer, Integer> upCountMap = new HashMap<>();
+
+        int totalI = 10000000;
+        double totalAmount = 0;
+        for (int i = 0; i < totalI; i ++) {
+            WishStatus wishStatus = new WishStatus();
+            // 是否为大保底
+            boolean well = isWell;
+            int upCount = 0;
+            int totalWish = 0;
+            while (true) {
+                double prob4 = WishHelper.getNextProb4(wishStatus, 3);
+                double prob5 = WishHelper.getNextProb5(wishStatus, 3);
+                double current = random.nextDouble();
+                if (current < prob5) {
+                    totalWish += wishStatus.getStar5Count() + 1;
+//                    log.info("currentWish = {}", wishStatus.getStar5Count() + 1);
+                    if (well || random.nextBoolean()) {
+                        upCount ++;
+                        well = false;
+                    } else {
+                        double payTime = Math.ceil(totalWish / wishFrom648);
+                        if (payTime < minPayTime) {
+                            payTime = minPayTime;
+                        }
+                        double remain = payTime * 648 - totalWish / wishFrom648 * 648;
+                        double amount = upCount * value5 * 1.5 + value5 * 0.5 + remain - cost;
+                        if (isWell) {
+                            amount -= value5 * 0.5;
+                        }
+//                        log.info("upCount = {}, totalWish = {}, payTime = {}, remain = {}, amount = {}", upCount, totalWish, payTime, remain, amount);
+                        totalAmount += amount;
+                        upCountMap.put(upCount, upCountMap.getOrDefault(upCount, 0) + 1);
+                        break;
+                    }
+                    wishStatus.setStar4Count(0);
+                    wishStatus.setStar5Count(0);
+                } else if (current < prob5 + prob4) {
+                    wishStatus.setStar4Count(0);
+                    wishStatus.setStar5Count(wishStatus.getStar5Count() + 1);
+                } else {
+                    wishStatus.setStar4Count(wishStatus.getStar4Count() + 1);
+                    wishStatus.setStar5Count(wishStatus.getStar5Count() + 1);
+                }
+            }
+        }
+
+        for (int i = 0; i < 10; i ++) {
+            log.info("upCount = {}, count = {}", i, upCountMap.getOrDefault(i, 0));
+        }
+
+        log.info("Avg amount = {}", totalAmount / totalI);
     }
 
 }
