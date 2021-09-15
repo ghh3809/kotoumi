@@ -3,7 +3,7 @@ package dao;
 import com.alibaba.fastjson.JSON;
 import entity.service.Keyword;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import processor.dialogue.UtilDialogService;
 import utils.FileHelper;
 import utils.RequestHelper;
