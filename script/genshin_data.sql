@@ -138,6 +138,7 @@ insert into kotoumi_genshin_unit values (3029, 3, '木屐', 5);
 insert into kotoumi_genshin_unit values (3030, 3, '花花', 4);
 insert into kotoumi_genshin_unit values (3031, 3, 'WJN韦', 4);
 insert into kotoumi_genshin_unit values (3032, 3, '你的小小朔啊', 4);
+insert into kotoumi_genshin_unit values (3033, 3, '0711', 4);
 
 # 祈愿池信息
 insert into kotoumi_genshin_wish_event values (1, '角色', '截止1.2版本所有上场过的5星角色', '截止1.2版本所有上场过的4星角色', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
@@ -173,6 +174,7 @@ insert into kotoumi_genshin_wish_event values (303, '群友up', 'up群友：C5�
 insert into kotoumi_genshin_wish_event values (304, '群友up', 'up群友：泡泡、狐狸，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好、花花', 3, '2021-07-04 10:00:00', '2021-07-24 16:59:59');
 insert into kotoumi_genshin_wish_event values (305, '群友up', 'up群友：小十香、小四，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好、花花、WJN韦', 3, '2021-07-26 10:00:00', '2021-08-14 17:59:59');
 insert into kotoumi_genshin_wish_event values (306, '群友up', 'up群友：风筝、Mio，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好、花花、WJN韦', 3, '2021-08-21 16:00:00', '2021-09-10 17:59:59');
+insert into kotoumi_genshin_wish_event values (307, '群友up', 'up群友：爆哥、兔子，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好、花花、WJN韦、你的小小朔啊', 3, '2021-09-22 18:00:00', '2021-10-13 17:59:59');
 
 # 角色池
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1001, 0);
@@ -1929,6 +1931,39 @@ insert into kotoumi_genshin_wish_unit_map values (null, 306, 2033, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 306, 2040, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 306, 2041, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 306, 2042, 0);
+
+# 群友up池-第6期
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3006, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3014, 1);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3019, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3020, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3021, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3022, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3026, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3028, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3030, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3031, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3032, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 3033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 307, 2042, 0);
 
 # 圣遗物套装信息
 insert into kotoumi_genshin_saint_suit values (null, '冰', 0, '历经风雪的思念');
