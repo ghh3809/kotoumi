@@ -10,9 +10,13 @@ import lombok.Getter;
 @Getter
 public enum UnitType {
 
+    /**
+     * 类型信息
+     */
     CHARACTER(1, "角色", 7, 1, "命"),
     WEAPON(2, "武器", 5, 0, "精炼"),
-    FRIEND(3, "群友", 7, 1, "命");
+    FRIEND(3, "群友", 7, 1, "命"),
+    REWARD(4, "奖品", 100, 0, "个");
 
     /**
      * 类型ID，默认角色为1，武器为2

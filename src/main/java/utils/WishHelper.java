@@ -34,6 +34,10 @@ public class WishHelper {
      * 祈愿类型，3为90抽保底角色up（50%）池且有大保底
      */
     private static final int WISH_TYPE_CHARACTER = 3;
+    /**
+     * 祈愿类型，4为10抽保底奖品池
+     */
+    private static final int WISH_TYPE_REWARD = 4;
 
     /**
      * 进行祈愿
@@ -64,6 +68,18 @@ public class WishHelper {
         // 获取当前池子祈愿状态，更新保底次数
         List<GenshinUnit> wishHistory = Dao.getWishHistory(userId, currentEvent.getId(), 90);
         updateWishStatus(wishHistory, wishStatus, currentEvent);
+
+        // 特别校验
+        if (currentEvent.getId() == 401 || currentEvent.getId() == 402) {
+            if (wishCount != 10) {
+                log.info("Wish count should be 10!");
+                return null;
+            }
+            if (wishHistory.size() >= 10) {
+                log.info("Already wished!");
+                return null;
+            }
+        }
 
         // 获取总祈愿状态，获得命座情况
         List<GenshinUnit> allHistory = Dao.getWishHistoryForSummary(userId, 0);
@@ -240,7 +256,9 @@ public class WishHelper {
      * @return 4星概率
      */
     public static double getNextProb4(WishStatus wishStatus, int wishType) {
-        if (wishType == WISH_TYPE_WEAPON) {
+        if (wishType == WISH_TYPE_REWARD) {
+            return 0;
+        } else if (wishType == WISH_TYPE_WEAPON) {
             if (wishStatus.getStar4Count() <= 5) {
                 return 0.06;
             } else {
@@ -261,7 +279,13 @@ public class WishHelper {
      * @return 5星概率
      */
     public static double getNextProb5(WishStatus wishStatus, int wishType) {
-        if (wishType == WISH_TYPE_WEAPON) {
+        if (wishType == WISH_TYPE_REWARD) {
+            if (wishStatus.getStar5Count() < 9) {
+                return 0.2;
+            } else {
+                return 1;
+            }
+        } else if (wishType == WISH_TYPE_WEAPON) {
             if (wishStatus.getStar5Count() <= 62) {
                 return 0.007;
             } else {
