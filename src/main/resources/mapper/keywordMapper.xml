@@ -26,7 +26,18 @@
         from kotoumi_keyword
         where group_id = #{groupId}
           <if test="key != ''">
-              and keyword = #{key}
+              <choose>
+                  <when test="fuzzyMode == 0">
+                      and keyword = #{key}
+                  </when>
+                  <when test="fuzzyMode == 1">
+                      and keyword like concat('%', #{key}, '%')
+                  </when>
+                  <when test="fuzzyMode == 2">
+                      and response like concat('%', #{key}, '%')
+                  </when>
+              </choose>
+
           </if>
           and enable = 1
         order by id
@@ -38,7 +49,17 @@
         from kotoumi_keyword
         where group_id = #{groupId}
         <if test="key != ''">
-            and keyword = #{key}
+            <choose>
+                <when test="fuzzyMode == 0">
+                    and keyword = #{key}
+                </when>
+                <when test="fuzzyMode == 1">
+                    and keyword like concat('%', #{key}, '%')
+                </when>
+                <when test="fuzzyMode == 2">
+                    and response like concat('%', #{key}, '%')
+                </when>
+            </choose>
         </if>
         and enable = 1
     </select>

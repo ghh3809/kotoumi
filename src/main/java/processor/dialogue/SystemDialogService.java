@@ -45,9 +45,11 @@ public class SystemDialogService {
             + "【词库管理】\n"
             + "新增词库：问_{问题}_答_{答案}\n"
             + "查询词库：查询词库[{词库ID/关键词}][_起始_{起始编号}]\n"
+            + "模糊查询词库：模糊查询词库{关键词}[_起始_{起始编号}]\n"
+            + "模糊查询答案：模糊查询答案{关键词}[_起始_{起始编号}]\n"
             + "删除词库：删除词库{词库ID/关键词}\n"
             + "【抽卡】\n"
-            + "抽卡：[普通/快速/无图/]抽卡/10连[标准池/角色池/武器池]（快速抽卡将仅显示5星图片，无图抽卡将不显示图片）\n"
+            + "抽卡：[普通/快速/无图/]抽卡/10连[标准池/角色池/武器池]\n"
             + "查看拥有角色：我的角色\n"
             + "查看拥有武器：我的武器\n"
             + "查看祈愿统计：我的统计\n"
@@ -77,6 +79,8 @@ public class SystemDialogService {
     };
 
     private static final String KEYWORD_QUERY_KEYWORD = "查询词库";
+    private static final String KEYWORD_FUZZY_QUERY_KEYWORD = "模糊查询词库";
+    private static final String KEYWORD_FUZZY_QUERY_ANSWER = "模糊查询答案";
     private static final String KEYWORD_DELETE_KEYWORD = "删除词库";
     private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("^\\d{1,4}$");
 
@@ -276,7 +280,7 @@ public class SystemDialogService {
      * @param request 请求
      * @return 返回
      */
-    public static MessageChain queryKeyword(Request request) {
+    public static MessageChain queryKeyword(Request request, int fuzzyMode) {
 
         log.info("Query keyword found");
 
@@ -284,7 +288,14 @@ public class SystemDialogService {
             return EmptyMessageChain.INSTANCE.plus("请在群中进行操作");
         }
 
-        request.setQuery(request.getQuery().replaceFirst(KEYWORD_QUERY_KEYWORD, ""));
+        if (fuzzyMode == 0) {
+            request.setQuery(request.getQuery().replaceFirst(KEYWORD_QUERY_KEYWORD, ""));
+        } else if (fuzzyMode == 1) {
+            request.setQuery(request.getQuery().replaceFirst(KEYWORD_FUZZY_QUERY_KEYWORD, ""));
+        } else if (fuzzyMode == 2) {
+            request.setQuery(request.getQuery().replaceFirst(KEYWORD_FUZZY_QUERY_ANSWER, ""));
+        }
+
         Matcher matcher = KEYWORD_QUERY_PATTERN.matcher(request.getQuery());
         if (matcher.find()) {
             String query = matcher.group(1);
@@ -298,7 +309,7 @@ public class SystemDialogService {
             log.info("Actual query: {}, start: {}", query, startIndex);
 
             // 判断是序号还是关键词
-            if (CARD_NUMBER_PATTERN.matcher(query).find()) {
+            if (CARD_NUMBER_PATTERN.matcher(query).find() && fuzzyMode == 0) {
                 // 说明是按序号进行查看
                 int keywordId = Integer.parseInt(query);
                 Keyword keyword = Dao.findKeywordById(request.getGroup().getId(), keywordId);
@@ -310,11 +321,11 @@ public class SystemDialogService {
                 }
             } else {
                 // 说明是按关键词进行查看
-                List<Keyword> keywordList = Dao.findKeywordByKey(request.getGroup().getId(), query, startIndex - 1);
+                List<Keyword> keywordList = Dao.findKeywordByKey(request.getGroup().getId(), query, fuzzyMode, startIndex - 1);
                 if (keywordList.isEmpty()) {
                     return EmptyMessageChain.INSTANCE.plus("词库不存在，请使用指令：“查询词库[{词库ID/关键词}][_起始_{起始编号}]”");
                 } else {
-                    int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query);
+                    int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query, fuzzyMode);
                     return new MessageChainBuilder().append("查询到以下结果：")
                             .append(responseKeywords(keywordList, request)).append("\n----------\n当前显示第")
                             .append(String.valueOf(startIndex)).append("-")
@@ -366,7 +377,7 @@ public class SystemDialogService {
             }
         } else {
             // 说明是按关键词进行查看
-            List<Keyword> keywordList = Dao.findKeywordByKey(request.getGroup().getId(), query, 0);
+            List<Keyword> keywordList = Dao.findKeywordByKey(request.getGroup().getId(), query, 0, 0);
             if (keywordList.isEmpty()) {
                 return EmptyMessageChain.INSTANCE.plus("词库不存在，请使用指令：“删除词库{词库ID/关键词}”");
             } else {
@@ -384,7 +395,7 @@ public class SystemDialogService {
                         return EmptyMessageChain.INSTANCE.plus("无权删除，请联系词库创建者(" + keyword.getCreatorId() + ")或管理员删除");
                     }
                 } else {
-                    int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query);
+                    int totalCount = Dao.countKeywordByKey(request.getGroup().getId(), query, 0);
                     return new MessageChainBuilder().append("查询到以下结果：")
                             .append(responseKeywords(keywordList, request)).append("\n----------\n当前显示第1-")
                             .append(String.valueOf(keywordList.size())).append("条，共")

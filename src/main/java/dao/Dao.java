@@ -94,14 +94,16 @@ public class Dao {
      * 根据词库内容搜索关键词
      * @param groupId 群ID
      * @param key 词库内容
+     * @param fuzzyMode 模糊查询参数，0为非模糊查询，1为模糊问，2为模糊答
      * @param start 起始位置
      * @return 关键词列表
      */
-    public static List<Keyword> findKeywordByKey(long groupId, String key, int start) {
+    public static List<Keyword> findKeywordByKey(long groupId, String key, int fuzzyMode, int start) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("groupId", groupId);
             hashMap.put("key", key);
+            hashMap.put("fuzzyMode", fuzzyMode);
             hashMap.put("start", start);
             return session.selectList("findKeywordByKey", hashMap);
         }
@@ -113,10 +115,11 @@ public class Dao {
      * @param key 词库内容
      * @return 关键词数量
      */
-    public static int countKeywordByKey(long groupId, String key) {
+    public static int countKeywordByKey(long groupId, String key, int fuzzyMode) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("groupId", groupId);
+            hashMap.put("fuzzyMode", fuzzyMode);
             hashMap.put("key", key);
             return session.selectOne("countKeywordByKey", hashMap);
         }

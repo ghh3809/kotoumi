@@ -53,6 +53,8 @@ public class DialogService {
     private static final String HELP_KEYWORD = "帮助";
     private static final String QUERY_CARD_KEYWORD = "查卡";
     private static final String KEYWORD_QUERY_KEYWORD = "查询词库";
+    private static final String KEYWORD_FUZZY_QUERY_KEYWORD = "模糊查询词库";
+    private static final String KEYWORD_FUZZY_QUERY_ANSWER = "模糊查询答案";
     private static final String KEYWORD_DELETE_KEYWORD = "删除词库";
     private static final String SIGN_IN_KEYWORD = "签到";
     private static final String ADD_SIGN_IN_KEYWORD = "补签";
@@ -149,7 +151,13 @@ public class DialogService {
             return SifDialogService.queryCard(request);
         } else if (request.getQuery().startsWith(KEYWORD_QUERY_KEYWORD)) {
             // 查询词库
-            return SystemDialogService.queryKeyword(request);
+            return SystemDialogService.queryKeyword(request, 0);
+        } else if (request.getQuery().startsWith(KEYWORD_FUZZY_QUERY_KEYWORD)) {
+            // 查询词库
+            return SystemDialogService.queryKeyword(request, 1);
+        } else if (request.getQuery().startsWith(KEYWORD_FUZZY_QUERY_ANSWER)) {
+            // 查询词库
+            return SystemDialogService.queryKeyword(request, 2);
         } else if (request.getQuery().startsWith(KEYWORD_DELETE_KEYWORD)) {
             // 删除词库
             return SystemDialogService.deleteKeyword(request);
@@ -163,7 +171,7 @@ public class DialogService {
             // 卡组pk
             return SystemDialogService.cardPk(request);
         } else if (request.getQuery().startsWith(ADD_SIGN_IN_KEYWORD)) {
-            // 签到
+            // 补签
             return SystemDialogService.addSignIn(request);
         } else if (addKeywordMatcher.find()) {
             // 添加词库
