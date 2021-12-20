@@ -50,7 +50,9 @@ public class DialogService {
     /**
      * query关键字
      */
+    private static final String KLEE_KEYWORD = "可莉";
     private static final String HELP_KEYWORD = "帮助";
+    private static final String GENSHIN_KEYWORD = "原神";
     private static final String QUERY_CARD_KEYWORD = "查卡";
     private static final String KEYWORD_QUERY_KEYWORD = "查询词库";
     private static final String KEYWORD_FUZZY_QUERY_KEYWORD = "模糊查询词库";
@@ -134,9 +136,12 @@ public class DialogService {
         Matcher wishSaintMatcher = WISH_SAINT_PATTERN.matcher(request.getQuery());
         Matcher strengthSaintMatcher = STRENGTH_SAINT_PATTERN.matcher(request.getQuery());
         Matcher findSaintMatcher = FIND_SAINT_PATTERN.matcher(request.getQuery());
-        if (request.getQuery().equals(HELP_KEYWORD)) {
+        if (request.getQuery().equals(HELP_KEYWORD) || request.getQuery().equals(KLEE_KEYWORD)) {
             // 帮助
             return SystemDialogService.help();
+        } else if (request.getQuery().equals(GENSHIN_KEYWORD)) {
+            // 签到
+            return SystemDialogService.genshin();
         } else if (request.getQuery().equals(SIGN_IN_KEYWORD)) {
             // 签到
             return SystemDialogService.signIn(request);

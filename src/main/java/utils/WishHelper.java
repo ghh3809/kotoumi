@@ -102,7 +102,6 @@ public class WishHelper {
 
                 // 更新抽卡状态
                 wishStatus.setStar5Count(0);
-                wishStatus.setStar4Count(0);
                 if (currentEvent.getWishType() == WISH_TYPE_CHARACTER || currentEvent.getWishType() == WISH_TYPE_WEAPON) {
                     wishStatus.setMustUp(unit.getIsUp() != 1);
                 }
@@ -225,25 +224,35 @@ public class WishHelper {
 
         int star4Count = 0;
         int star5Count = 0;
-        boolean flag = false;
+        boolean flag4 = false;
+        boolean flag5 = false;
         for (GenshinUnit genshinUnit : wishHistory) {
             if (genshinUnit.getRarity() < 4) {
-                if (!flag) {
+                if (!flag4) {
                     star4Count ++;
                 }
-                star5Count ++;
+                if (!flag5) {
+                    star5Count ++;
+                }
             } else if (genshinUnit.getRarity() == 4) {
-                flag = true;
-                star5Count ++;
+                flag4 = true;
+                if (!flag5) {
+                    star5Count ++;
+                } else {
+                    break;
+                }
             } else {
-                wishStatus.setStar4Count(star4Count);
-                wishStatus.setStar5Count(star5Count);
+                flag5 = true;
                 if (wishEvent.getWishType() == WISH_TYPE_CHARACTER || wishEvent.getWishType() == WISH_TYPE_WEAPON) {
                     if (genshinUnit.getIsUp() == 0) {
                         wishStatus.setMustUp(true);
                     }
                 }
-                return;
+                if (!flag4) {
+                    star4Count ++;
+                } else {
+                    break;
+                }
             }
         }
         wishStatus.setStar4Count(star4Count);
@@ -259,16 +268,16 @@ public class WishHelper {
         if (wishType == WISH_TYPE_REWARD) {
             return 0;
         } else if (wishType == WISH_TYPE_WEAPON) {
-            if (wishStatus.getStar4Count() <= 5) {
+            if (wishStatus.getStar4Count() <= 6) {
                 return 0.06;
             } else {
-                return 0.06 + 0.94 * (wishStatus.getStar4Count() - 5) / 4;
+                return 0.06 + 0.6 * (wishStatus.getStar4Count() - 6);
             }
         } else {
-            if (wishStatus.getStar4Count() <= 6) {
+            if (wishStatus.getStar4Count() <= 7) {
                 return 0.051;
             } else {
-                return 0.051 + 0.949 * (wishStatus.getStar4Count() - 6) / 3;
+                return 0.051 + 0.51 * (wishStatus.getStar4Count() - 7);
             }
         }
     }
@@ -286,16 +295,16 @@ public class WishHelper {
                 return 1;
             }
         } else if (wishType == WISH_TYPE_WEAPON) {
-            if (wishStatus.getStar5Count() <= 62) {
+            if (wishStatus.getStar5Count() <= 61) {
                 return 0.007;
             } else {
-                return 0.007 + 0.993 * (wishStatus.getStar5Count() - 62) / 17;
+                return 0.007 + 0.07 * (wishStatus.getStar5Count() - 61);
             }
         } else {
             if (wishStatus.getStar5Count() <= 72) {
                 return 0.006;
             } else {
-                return 0.006 + 0.994 * (wishStatus.getStar5Count() - 72) / 17;
+                return 0.006 + 0.06 * (wishStatus.getStar5Count() - 72);
             }
         }
     }

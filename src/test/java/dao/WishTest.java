@@ -33,7 +33,7 @@ public class WishTest {
         Random random = new Random();
         WishStatus wishStatus = new WishStatus();
         Map<Integer, Integer> countMap = new HashMap<>();
-        for (int i = 0; i < 80; i ++) {
+        for (int i = 0; i < 90; i ++) {
             countMap.put(i + 1, 0);
         }
         int count5 = 0, count4 = 0, total = 0;
@@ -47,7 +47,6 @@ public class WishTest {
 //                log.info("Get 5");
                 int times = wishStatus.getStar5Count() + 1;
                 countMap.put(times, countMap.get(times) + 1);
-                wishStatus.setStar4Count(0);
                 wishStatus.setStar5Count(0);
                 count5 ++;
             } else if (current < prob5 + prob4) {

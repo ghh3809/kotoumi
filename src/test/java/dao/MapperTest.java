@@ -40,8 +40,8 @@ public class MapperTest {
         long id = Dao.getId(199188177L);
         log.info(JSON.toJSONString(Dao.findKeywords(199188177L)));
         log.info(JSON.toJSONString(Dao.findKeywordById(199188177L, id)));
-        log.info(JSON.toJSONString(Dao.findKeywordByKey(199188177L, "", 0)));
-        log.info(JSON.toJSONString(Dao.findKeywordByKey(199188177L, "123", 0)));
+        log.info(JSON.toJSONString(Dao.findKeywordByKey(199188177L, "", 0, 0)));
+        log.info(JSON.toJSONString(Dao.findKeywordByKey(199188177L, "123", 0, 0)));
         Dao.deleteKeyword(199188177L, id);
     }
 

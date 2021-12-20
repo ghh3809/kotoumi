@@ -37,10 +37,12 @@ public class SystemDialogService {
     /**
      * 回复模板
      */
-    private static final String HELP_RESPONSE = "机器人支持以下模板：\n"
+    private static final String HELP_RESPONSE = "\n你好，这里是你的专属小可爱：可莉！快来找可莉一起玩吧！\n目前支持以下模板：\n"
+            + "【原神相关】\n"
+            + "查看原神关键词：原神\n"
             + "【群聊娱乐】\n"
-            + "签到/抽签/占卜\n"
-            + "【卡面查询】\n"
+            + "每日功能：签到/抽签/占卜\n"
+            + "【SIF卡面查询】\n"
             + "查卡：查卡{编号/卡名称}[觉醒][无框]\n"
             + "【词库管理】\n"
             + "新增词库：问_{问题}_答_{答案}\n"
@@ -66,6 +68,30 @@ public class SystemDialogService {
             + "群圣遗物排名：圣遗物排名\n"
             + "【关于】\n"
             + "海鸟阁小机器人，请各位善待，如有需求或问题，欢迎随时反馈管理组！";
+    /**
+     * 原神菜单
+     */
+    private static final String GENSHIN_RESPONSE = "\n【机制数据】\n" +
+            "天赋材料\n" +
+            "武器材料\n" +
+            "周常材料\n" +
+            "圣遗物属性\n" +
+            "养成计算\n" +
+            "抗性系数\n" +
+            "怪物抗性表\n" +
+            "怪物血量表\n" +
+            "元素附着时间\n" +
+            "元素反应残留\n" +
+            "----------\n" +
+            "【概率查询】\n" +
+            "抽卡概率\n" +
+            "普池概率\n" +
+            "角色概率\n" +
+            "武器概率\n" +
+            "抽卡机制\n" +
+            "----------\n" +
+            "【世界材料】\n" +
+            "善用模糊查询功能，例如“模糊查询词库刀镡”";
     /**
      * 抽签占卜结果列表
      */
@@ -97,6 +123,15 @@ public class SystemDialogService {
     public static MessageChain help() {
         log.info("Help found");
         return EmptyMessageChain.INSTANCE.plus(HELP_RESPONSE);
+    }
+
+    /**
+     * 原神菜单
+     * @return 返回
+     */
+    public static MessageChain genshin() {
+        log.info("Genshin found");
+        return EmptyMessageChain.INSTANCE.plus(GENSHIN_RESPONSE);
     }
 
     /**

@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import entity.request.DialogueRequest;
+import entity.request.NewDialogueRequest;
 import entity.response.DialogueResponse;
+import entity.response.NewDialogueResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import utils.ConfigHelper;
@@ -24,8 +26,12 @@ public class UnitService {
     private static final HashMap<String, SessionStatus> SESSION_STATUS_MAP = new HashMap<>();
     private static final int MAX_SESSION_TIME = 300000;
 
+    private static final boolean USE_NEW_CHAT = false;
+
     static {
-        refreshAccessToken();
+        if (!USE_NEW_CHAT) {
+            refreshAccessToken();
+        }
     }
 
     /**
@@ -38,7 +44,7 @@ public class UnitService {
 
         // 准备sessionId
         String sessionId = null;
-        JSONArray sysPresumedHist = null;
+        JSONArray sysPresumedHist = new JSONArray();
         if (SESSION_STATUS_MAP.containsKey(userId)) {
             SessionStatus sessionStatus = SESSION_STATUS_MAP.get(userId);
             if (System.currentTimeMillis() - sessionStatus.lastChatTime < MAX_SESSION_TIME) {
@@ -47,6 +53,32 @@ public class UnitService {
             }
         }
         DialogueRequest dialogueRequest = DialogueRequest.getInstance(userId, query, sessionId, sysPresumedHist);
+
+        // 使用新的对话服务
+        if (USE_NEW_CHAT) {
+            String newChatUrl = ConfigHelper.getProperties("new_chat_url");
+            sysPresumedHist.add(query);
+            NewDialogueRequest newDialogueRequest = new NewDialogueRequest(sysPresumedHist);
+            String response = RequestHelper.httpPost(newChatUrl, newDialogueRequest);
+            if (response != null) {
+                NewDialogueResponse newDialogueResponse = JSON.parseObject(response, NewDialogueResponse.class);
+                if (newDialogueResponse.getErrorCode() == 0) {
+                    sysPresumedHist.add(newDialogueResponse.getResult());
+                    if (sysPresumedHist.size() > 14) {
+                        sysPresumedHist.remove(0);
+                        sysPresumedHist.remove(0);
+                    }
+                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, sysPresumedHist, System.currentTimeMillis()));
+                    return newDialogueResponse.getResult();
+                } else {
+                    log.error("Request new chat service failed: error code {}", newDialogueResponse.getErrorCode());
+                    return null;
+                }
+            } else {
+                log.error("Request new chat service failed!");
+                return null;
+            }
+        }
 
         // 准备accessToken
         if (System.currentTimeMillis() >= accessTokeExpireTime) {
