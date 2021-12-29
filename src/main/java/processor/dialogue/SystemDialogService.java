@@ -71,10 +71,13 @@ public class SystemDialogService {
     /**
      * 原神菜单
      */
-    private static final String GENSHIN_RESPONSE = "\n【机制数据】\n" +
+    private static final String GENSHIN_RESPONSE = "\n" +
+            "【周常副本掉落】\n" +
             "天赋材料\n" +
             "武器材料\n" +
             "周常材料\n" +
+            "----------\n" +
+            "【原神机制数据】\n" +
             "圣遗物属性\n" +
             "养成计算\n" +
             "抗性系数\n" +
@@ -83,6 +86,11 @@ public class SystemDialogService {
             "元素附着时间\n" +
             "元素反应残留\n" +
             "----------\n" +
+            "【角色与武器培养】\n" +
+            "角色攻略\n" +
+            "角色配装\n" +
+            "武器攻略\n" +
+            "----------\n" +
             "【概率查询】\n" +
             "抽卡概率\n" +
             "普池概率\n" +
@@ -90,8 +98,8 @@ public class SystemDialogService {
             "武器概率\n" +
             "抽卡机制\n" +
             "----------\n" +
-            "【世界材料】\n" +
-            "善用模糊查询功能，例如“模糊查询词库刀镡”";
+            "【世界材料刷新点】\n" +
+            "请用模糊查询功能，例如“模糊查询词库刀镡”";
     /**
      * 抽签占卜结果列表
      */

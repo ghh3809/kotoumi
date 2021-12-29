@@ -166,8 +166,11 @@ public class Processor {
             }
         }
         String query = stringBuilder.toString();
-        if (query.contains(BotInfo.NAME)) {
-            querySignal.setAtMe(true);
+        for (String name : BotInfo.NAME) {
+            if (query.contains(name)) {
+                querySignal.setAtMe(true);
+                break;
+            }
         }
         return query;
     }
