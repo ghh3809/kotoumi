@@ -70,7 +70,7 @@ public class WishHelper {
         updateWishStatus(wishHistory, wishStatus, currentEvent);
 
         // 特别校验
-        if (currentEvent.getId() == 401 || currentEvent.getId() == 402) {
+        if (currentEvent.getId() == 401 || currentEvent.getId() == 402 || currentEvent.getId() == 403) {
             if (wishCount != 10) {
                 log.info("Wish count should be 10!");
                 return null;
@@ -101,6 +101,7 @@ public class WishHelper {
                 unit = chooseOne(5, wishStatus, wishUnitList, currentEvent.getWishType());
 
                 // 更新抽卡状态
+                wishStatus.setStar4Count(0);
                 wishStatus.setStar5Count(0);
                 if (currentEvent.getWishType() == WISH_TYPE_CHARACTER || currentEvent.getWishType() == WISH_TYPE_WEAPON) {
                     wishStatus.setMustUp(unit.getIsUp() != 1);
@@ -220,6 +221,8 @@ public class WishHelper {
 
         if (wishEvent.getWishType() == WISH_TYPE_WEAPON) {
             wishStatus.setMaxFiveCount(80);
+        } else if (wishEvent.getWishType() == WISH_TYPE_REWARD) {
+            wishStatus.setMaxFiveCount(10);
         }
 
         int star4Count = 0;
@@ -290,7 +293,7 @@ public class WishHelper {
     public static double getNextProb5(WishStatus wishStatus, int wishType) {
         if (wishType == WISH_TYPE_REWARD) {
             if (wishStatus.getStar5Count() < 9) {
-                return 0.2;
+                return 1.0 / 3.0;
             } else {
                 return 1;
             }

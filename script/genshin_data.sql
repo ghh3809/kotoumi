@@ -194,6 +194,9 @@ insert into kotoumi_genshin_unit values (4041, 4, '(徽章)荧', 5);
 insert into kotoumi_genshin_unit values (4042, 4, '(徽章)派蒙', 5);
 insert into kotoumi_genshin_unit values (4043, 4, '(挂件)天空之翼', 5);
 insert into kotoumi_genshin_unit values (4044, 4, '(挂件)狼的末路', 5);
+insert into kotoumi_genshin_unit values (4045, 4, '(徽章)荒泷一斗', 5);
+insert into kotoumi_genshin_unit values (4046, 4, '(徽章)五郎', 5);
+insert into kotoumi_genshin_unit values (4047, 4, '(徽章)申鹤', 5);
 
 # 祈愿池信息
 insert into kotoumi_genshin_wish_event values (1, '角色', '截止1.2版本所有上场过的5星角色', '截止1.2版本所有上场过的4星角色', 1, '2021-01-01 00:00:00', '2021-02-02 23:59:59');
@@ -238,6 +241,7 @@ insert into kotoumi_genshin_wish_event values (308, '群友up', 'up群友：叽�
 insert into kotoumi_genshin_wish_event values (309, '群友up', 'up群友：さやかちゃん、不知自闭，非up群友：常驻池五星群友', '常驻群友4星：乏、萌新、翩、求罢儿、潸然离人笺、碎片时间玩玩原魔、问好、花花、WJN韦、你的小小朔啊', 3, '2021-11-29 18:00:00', '2021-12-19 17:59:59');
 insert into kotoumi_genshin_wish_event values (401, '徽章', '第三届群友活动——徽章奖励', '-', 4, '2021-10-07 00:00:00', '2021-10-08 23:59:59');
 insert into kotoumi_genshin_wish_event values (402, '挂件', '第三届群友活动——挂件奖励', '-', 4, '2021-10-07 00:00:00', '2021-10-08 23:59:59');
+insert into kotoumi_genshin_wish_event values (403, '徽章', '第四届群友活动——徽章奖励', '-', 4, '2022-02-05 14:00:00', '2022-02-05 23:59:59');
 
 # 角色池
 insert into kotoumi_genshin_wish_unit_map values (null, 1, 1001, 0);
@@ -2376,6 +2380,54 @@ insert into kotoumi_genshin_wish_unit_map values (null, 401, 2001, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 402, 4043, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 402, 4044, 0);
 insert into kotoumi_genshin_wish_unit_map values (null, 402, 2001, 0);
+
+# 第四届群友活动奖品
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4001, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4002, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4003, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4004, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4005, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4006, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4007, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4008, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4009, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4010, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4011, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4012, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4013, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4014, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4015, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4016, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4017, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4018, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4019, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4020, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4021, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4022, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4023, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4024, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4025, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4026, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4027, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4028, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4029, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4030, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4031, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4032, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4033, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4034, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4035, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4036, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4037, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4038, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4039, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4040, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4041, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4042, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4045, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4046, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 4047, 0);
+insert into kotoumi_genshin_wish_unit_map values (null, 403, 2001, 0);
 
 # 圣遗物套装信息
 insert into kotoumi_genshin_saint_suit values (null, '冰', 0, '历经风雪的思念');
