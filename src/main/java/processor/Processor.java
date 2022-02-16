@@ -49,8 +49,11 @@ public class Processor {
         // 消息来源bot
         Bot bot = messageEvent.getBot();
 
-        // 消息发送者
+        // 消息发送者，注意屏蔽其他机器人
         User sender = messageEvent.getSender();
+        if (sender.getId() == 1975652053L) {
+            return null;
+        }
         String senderString;
         if (sender instanceof Member) {
             Member member = (Member) sender;
