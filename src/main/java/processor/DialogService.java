@@ -46,7 +46,7 @@ public class DialogService {
     private static final Pattern FIND_SAINT_PATTERN = Pattern.compile("^查看圣遗物([0-9]+).*$");
     private static final Pattern ADD_PRIMOGEMS_PATTERN = Pattern.compile("^氪金_(.+?)_(.+)$");
     private static final Pattern SIF_RANK_PATTERN = Pattern.compile("^(国服|当前|实时)?档线$");
-    private static final Pattern WISH_RESULT_PATTERN = Pattern.compile("^我的(.+)$");
+    private static final Pattern WISH_RESULT_PATTERN = Pattern.compile("^我的(圣遗物|统计|角色|武器|群友|奖品)$");
     private static final Pattern MODE_SET_PATTERN = Pattern.compile("^设置图片模式(普通|快速|无图)$");
     /**
      * query关键字

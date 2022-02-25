@@ -23,16 +23,14 @@ public class DialogueResponse {
 
         @JSONField(name = "session_id")
         private String sessionId;
-        @JSONField(name = "dialog_state")
-        private JSONObject dialogState;
-        @JSONField(name = "response_list")
-        private List<ResultResponse> responseList;
+        @JSONField(name = "responses")
+        private List<ResultResponse> responses;
 
         @Data
         public static class ResultResponse {
 
-            @JSONField(name = "action_list")
-            private List<Action> actionList;
+            @JSONField(name = "actions")
+            private List<Action> actions;
 
             @Data
             public static class Action {

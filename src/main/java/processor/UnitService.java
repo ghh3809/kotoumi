@@ -1,12 +1,9 @@
 package processor;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import entity.request.DialogueRequest;
-import entity.request.NewDialogueRequest;
 import entity.response.DialogueResponse;
-import entity.response.NewDialogueResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import utils.ConfigHelper;
@@ -44,41 +41,13 @@ public class UnitService {
 
         // 准备sessionId
         String sessionId = null;
-        JSONArray sysPresumedHist = new JSONArray();
         if (SESSION_STATUS_MAP.containsKey(userId)) {
             SessionStatus sessionStatus = SESSION_STATUS_MAP.get(userId);
             if (System.currentTimeMillis() - sessionStatus.lastChatTime < MAX_SESSION_TIME) {
                 sessionId = sessionStatus.sessionId;
-                sysPresumedHist = sessionStatus.sysPresumedHist;
             }
         }
-        DialogueRequest dialogueRequest = DialogueRequest.getInstance(userId, query, sessionId, sysPresumedHist);
-
-        // 使用新的对话服务
-        if (USE_NEW_CHAT) {
-            String newChatUrl = ConfigHelper.getProperties("new_chat_url");
-            sysPresumedHist.add(query);
-            NewDialogueRequest newDialogueRequest = new NewDialogueRequest(sysPresumedHist);
-            String response = RequestHelper.httpPost(newChatUrl, newDialogueRequest);
-            if (response != null) {
-                NewDialogueResponse newDialogueResponse = JSON.parseObject(response, NewDialogueResponse.class);
-                if (newDialogueResponse.getErrorCode() == 0) {
-                    sysPresumedHist.add(newDialogueResponse.getResult());
-                    if (sysPresumedHist.size() > 14) {
-                        sysPresumedHist.remove(0);
-                        sysPresumedHist.remove(0);
-                    }
-                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, sysPresumedHist, System.currentTimeMillis()));
-                    return newDialogueResponse.getResult();
-                } else {
-                    log.error("Request new chat service failed: error code {}", newDialogueResponse.getErrorCode());
-                    return null;
-                }
-            } else {
-                log.error("Request new chat service failed!");
-                return null;
-            }
-        }
+        DialogueRequest dialogueRequest = DialogueRequest.getInstance(userId, query, sessionId);
 
         // 准备accessToken
         if (System.currentTimeMillis() >= accessTokeExpireTime) {
@@ -86,18 +55,16 @@ public class UnitService {
         }
 
         // 请求unit服务
-        String url = String.format("https://aip.baidubce.com/rpc/2.0/unit/service/chat?access_token=%s", accessToken);
+        String url = String.format("https://aip.baidubce.com/rpc/2.0/unit/service/v3/chat?access_token=%s", accessToken);
         String response = RequestHelper.httpPost(url, dialogueRequest);
         if (response != null) {
             DialogueResponse dialogueResponse = JSON.parseObject(response, DialogueResponse.class);
             if (dialogueResponse.getErrorCode() == 0) {
                 sessionId = dialogueResponse.getResult().getSessionId();
-                sysPresumedHist = dialogueResponse.getResult().getDialogState().getJSONObject("contexts")
-                        .getJSONArray("SYS_PRESUMED_HIST");
                 if (StringUtils.isNotBlank(sessionId)) {
-                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, sysPresumedHist, System.currentTimeMillis()));
+                    SESSION_STATUS_MAP.put(userId, new SessionStatus(sessionId, System.currentTimeMillis()));
                 }
-                return dialogueResponse.getResult().getResponseList().get(0).getActionList().get(0).getSay();
+                return dialogueResponse.getResult().getResponses().get(0).getActions().get(0).getSay();
             } else {
                 log.error("Request unit service failed: error code {}", dialogueResponse.getErrorCode());
                 return null;
@@ -128,12 +95,10 @@ public class UnitService {
     private static class SessionStatus {
 
         String sessionId;
-        JSONArray sysPresumedHist;
         long lastChatTime;
 
-        SessionStatus(String sessionId, JSONArray sysPresumedHist, long lastChatTime) {
+        SessionStatus(String sessionId, long lastChatTime) {
             this.sessionId = sessionId;
-            this.sysPresumedHist = sysPresumedHist;
             this.lastChatTime = lastChatTime;
         }
 
