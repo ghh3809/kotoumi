@@ -39,21 +39,22 @@ public class SaintDialogService {
             + "攻击力：0";
     private static final String SAINT_SCORE_RESULT = "得分：%.1f\n"
             + "%s分位：%s%%\n"
-            + "圣遗物价值：%s体力%s\n"
+            + "圣遗物价值：%s体力\n"
             + "评级：%s";
     private static final String SAINT_SCORE_RESULT_RESPONSE = "\n【圣遗物详情】\n"
-            + "位置：%s\n"
+            + "位置：%s（主属性：%s）\n"
             + "暴击率：%.1f%%\n"
             + "暴击伤害：%.1f%%\n"
             + "攻击力百分比：%.1f%%\n"
             + "攻击力：%d\n"
             + "----------\n"
-            + "【评分结果(仅供参考)】\n"
+            + "【评分结果】\n"
             + "%s\n"
             + "----------\n"
-            + "(注1：本评分系统使用公式：S = 暴击率*2 + 暴击伤害 + 大攻击 + 小攻击*0.15，元素精通和充能效率可视情况计入)\n"
-            + "(注2：圣遗物价值在指定套装时，价值为2倍)";
+            + "(注1：本评分系统仅适用于常规攻击+双爆输出模型，3、4、5号位要求攻击/元素伤害/双暴主属性)\n"
+            + "(注2：评分公式：S = 暴击率*2 + 暴击伤害 + 大攻击 + 小攻击*0.15)";
     private static final String[] POS_DETAIL = new String[] {"生之花", "死之羽", "时之沙", "空之杯", "理之冠"};
+    private static final String[] MAIN_PROP = new String[] {"生命", "攻击", "攻击", "元素伤害", "暴击/爆伤"};
     private static final Pattern SAINT_SCORE_PATTERN = Pattern.compile("^.*?位置：(.*?)暴击率：([0-9.]+)%?.*?暴击伤害：([0-9.]+)%?.*?攻击力百分比：([0-9.]+)%?.*?攻击力：([0-9.]+).*$", Pattern.DOTALL);
     private static final Random RANDOM = new Random();
     private static final String SAINT_PIC_DIR = "./pics/saint/";
@@ -79,6 +80,7 @@ public class SaintDialogService {
                 SaintHelper.score(saint);
                 String response = String.format(SAINT_SCORE_RESULT_RESPONSE,
                         POS_DETAIL[pos],
+                        MAIN_PROP[pos],
                         criticalProb,
                         criticalDmg,
                         atkRatio,
@@ -390,7 +392,6 @@ public class SaintDialogService {
                     POS_DETAIL[saint.getPos()],
                     ratioString,
                     valueString,
-                    saint.getPos() == 3 ? ("(指定元素伤害时：" + valueString2 + "体力)") : "",
                     score.getLevel()
             );
         } else {
