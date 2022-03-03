@@ -39,6 +39,8 @@ public class UnitService {
      */
     public static String dialog(String userId, String query) {
 
+        query = query.replaceAll("（", "(").replaceAll("）", ")");
+
         // 准备sessionId
         String sessionId = null;
         if (SESSION_STATUS_MAP.containsKey(userId)) {
