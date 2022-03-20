@@ -263,7 +263,8 @@ public class DialogService {
         } else if (modeSetMatcher.find()) {
             // 设置招募模式
             return WishDialogService.setMode(request, modeSetMatcher);
-        } else if (request.getQuery().contains(SAINT_SCORE_KEYWORD1) || request.getQuery().contains(SAINT_SCORE_KEYWORD2)) {
+        } else if ((request.getQuery().contains(SAINT_SCORE_KEYWORD1) || request.getQuery().contains(SAINT_SCORE_KEYWORD2)) &&
+                !request.getQuery().contains("#") && !request.getQuery().contains("＃")) {
             // 圣遗物评分
             return SaintDialogService.saintScore(request);
         } else if (wishSaintMatcher.find()) {

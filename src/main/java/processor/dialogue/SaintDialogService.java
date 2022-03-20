@@ -37,7 +37,8 @@ public class SaintDialogService {
             + "暴击伤害：0%\n"
             + "攻击力百分比：0%\n"
             + "攻击力：0";
-    private static final String SAINT_SCORE_RESULT = "得分：%.1f\n"
+    private static final String SAINT_SCORE_RESULT = "双暴攻击：%.1f\n"
+            + "百分制分数：%.2f\n"
             + "%s分位：%s%%\n"
             + "圣遗物价值：%s体力\n"
             + "评级：%s";
@@ -52,9 +53,10 @@ public class SaintDialogService {
             + "%s\n"
             + "----------\n"
             + "(注1：本评分系统仅适用于常规攻击+双爆输出模型，3、4、5号位要求攻击/元素伤害/双暴主属性)\n"
-            + "(注2：评分公式：S = 暴击率*2 + 暴击伤害 + 大攻击 + 小攻击*0.15)";
+            + "(注2：双暴攻击公式：S = 暴击率*2 + 暴击伤害 + 大攻击 + 小攻击*0.15)";
     private static final String[] POS_DETAIL = new String[] {"生之花", "死之羽", "时之沙", "空之杯", "理之冠"};
     private static final String[] MAIN_PROP = new String[] {"生命", "攻击", "攻击", "元素伤害", "暴击/爆伤"};
+    private static final double[] MAX_SCORE = new double[] {63.05, 60.2, 57.25, 63.05, 55.25};
     private static final Pattern SAINT_SCORE_PATTERN = Pattern.compile("^.*?位置：(.*?)暴击率：([0-9.]+)%?.*?暴击伤害：([0-9.]+)%?.*?攻击力百分比：([0-9.]+)%?.*?攻击力：([0-9.]+).*$", Pattern.DOTALL);
     private static final Random RANDOM = new Random();
     private static final String SAINT_PIC_DIR = "./pics/saint/";
@@ -379,16 +381,15 @@ public class SaintDialogService {
             } else {
                 ratioString = String.format("%.5f", score.getRatio()).replaceAll("0{2,}", "");
             }
-            String valueString, valueString2;
+            String valueString;
             if (score.getValue() > 1000000) {
                 valueString = score.getValue() / 10000 + "万";
-                valueString2 = score.getValue() * 7 / 10000 + "万";
             } else {
                 valueString = String.valueOf(score.getValue());
-                valueString2 = String.valueOf(score.getValue() * 7);
             }
             return String.format(SAINT_SCORE_RESULT,
                     score.getScore(),
+                    score.getScore() > MAX_SCORE[saint.getPos()] ? 100 : score.getScore() * 100 / MAX_SCORE[saint.getPos()],
                     POS_DETAIL[saint.getPos()],
                     ratioString,
                     valueString,
