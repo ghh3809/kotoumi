@@ -19,9 +19,13 @@ public class SaintTest {
 
     @Test
     public void testScore() {
-        Saint saint = new Saint(0, 3.9, 7.8, 0, 0);
+        Saint saint = new Saint(0, 0);
         saint.setMainProperty(new Property(PropertyEnum.HP, 311));
         saint.setName("雷鸟的怜悯");
+        saint.getSubProperties().add(new Property(PropertyEnum.ATK_RATIO, 5.25));
+        saint.getSubProperties().add(new Property(PropertyEnum.DEF_RATIO, 16.20));
+        saint.getSubProperties().add(new Property(PropertyEnum.CRITICAL_DMG, 3.89));
+        saint.getSubProperties().add(new Property(PropertyEnum.ENERGY, 4.53));
         log.info(JSON.toJSONString(SaintHelper.score(saint)));
         log.info("\n" + saint);
     }

@@ -11,6 +11,7 @@ import lombok.Data;
 public class SaintScore {
 
     private double score;
+    private double levelScore;
     private double ratio;
     private long value;
     private String level;

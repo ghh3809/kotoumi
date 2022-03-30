@@ -1,15 +1,14 @@
 package entity.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -26,15 +25,12 @@ import java.util.stream.Collectors;
 public class Saint {
 
     public static final String[] POSITION_NAME = new String[] {"生之花", "死之羽", "时之沙", "空之杯", "理之冠"};
+    public static final Map<PropertyEnum, Integer> SUB_PROPERTIES_WEIGHT = new HashMap<>();
+    public static final Map<PropertyEnum, Double> MAIN_PROPERTIES_VALUE_0 = new HashMap<>();
 
     private static final List<Map<PropertyEnum, Integer>> MAIN_PROPERTIES_WEIGHT = new ArrayList<>();
-    private static final Map<PropertyEnum, Integer> SUB_PROPERTIES_WEIGHT = new HashMap<>();
-    private static final Map<PropertyEnum, Double> SUB_PROPERTIES_RATIO = new HashMap<>();
-    private static final double[] BASIC_SUB_VALUE = new double[] {2.72, 3.11, 3.50, 3.89};
-    private static final double BASIC_MAIN_VALUE_MIN = 4.66;
-    private static final double BASIC_MAIN_VALUE_LEVEL = 1.322;
-    private static final double FLOWER_MAIN_VALUE_MIN = 717;
-    private static final double FLOWER_MAIN_VALUE_LEVEL = 203.15;
+    private static final Map<PropertyEnum, List<Double>> SUB_PROPERTIES_VALUE = new HashMap<>();
+    private static final Map<PropertyEnum, Double> MAIN_PROPERTIES_VALUE_20 = new HashMap<>();
 
     private static final Random RANDOM = new Random();
 
@@ -105,28 +101,61 @@ public class Saint {
         SUB_PROPERTIES_WEIGHT.put(PropertyEnum.CRITICAL_PROB, 3);
         SUB_PROPERTIES_WEIGHT.put(PropertyEnum.CRITICAL_DMG, 3);
 
-        // 比值信息录入
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.HP, 76.8);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.ATK, 5.0);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.DEF, 6.0);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.HP_RATIO, 1.5);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.ATK_RATIO, 1.5);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.DEF_RATIO, 15.0 / 8);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.EM, 6.0);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.ENERGY, 5.0 / 3);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.CRITICAL_PROB, 1.0);
-        SUB_PROPERTIES_RATIO.put(PropertyEnum.CRITICAL_DMG, 2.0);
+        // 副词条数值录入
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.HP, Arrays.asList(209.13, 239.00, 268.88, 298.75));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.ATK, Arrays.asList(13.62, 15.56, 17.51, 19.45));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.DEF, Arrays.asList(16.20, 18.52, 20.83, 23.15));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.HP_RATIO, Arrays.asList(4.08, 4.66, 5.25, 5.83));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.ATK_RATIO, Arrays.asList(4.08, 4.66, 5.25, 5.83));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.DEF_RATIO, Arrays.asList(5.10, 5.83, 6.56, 7.29));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.EM, Arrays.asList(16.32, 18.65, 20.98, 23.31));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.ENERGY, Arrays.asList(4.53, 5.18, 5.83, 6.48));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.CRITICAL_PROB, Arrays.asList(2.72, 3.11, 3.50, 3.89));
+        SUB_PROPERTIES_VALUE.put(PropertyEnum.CRITICAL_DMG, Arrays.asList(5.44, 6.22, 6.99, 7.77));
+
+        // 主词条数值录入
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.HP, 717.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.ATK, 47.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.HP_RATIO, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.ATK_RATIO, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.DEF_RATIO, 8.7);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.EM, 28.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.ENERGY, 7.8);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.FIRE_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.WATER_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.ICE_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.THUNDER_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.WIND_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.ROCK_DMG, 7.0);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.PHYSICS_DMG, 8.7);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.CRITICAL_PROB, 4.7);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.CRITICAL_DMG, 9.3);
+        MAIN_PROPERTIES_VALUE_0.put(PropertyEnum.CURE, 5.4);
+
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.HP, 4780.0);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.ATK, 311.0);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.HP_RATIO, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.ATK_RATIO, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.DEF_RATIO, 58.3);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.EM, 187.0);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.ENERGY, 51.8);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.FIRE_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.WATER_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.ICE_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.THUNDER_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.WIND_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.ROCK_DMG, 46.6);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.PHYSICS_DMG, 58.3);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.CRITICAL_PROB, 31.1);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.CRITICAL_DMG, 62.2);
+        MAIN_PROPERTIES_VALUE_20.put(PropertyEnum.CURE, 35.9);
 
     }
 
-    public Saint(int pos, double criticalProb, double criticalDmg, double atkRatio, int atk) {
+    public Saint(int pos, int level) {
         this.pos = pos;
         this.subProperties = new ArrayList<>();
-        this.subProperties.add(new Property(PropertyEnum.CRITICAL_PROB, criticalProb));
-        this.subProperties.add(new Property(PropertyEnum.CRITICAL_DMG, criticalDmg));
-        this.subProperties.add(new Property(PropertyEnum.ATK_RATIO, atkRatio));
-        this.subProperties.add(new Property(PropertyEnum.ATK, atk));
-        this.level = 20;
+        this.level = level;
     }
 
     public Saint(DbSaint dbSaint) {
@@ -145,15 +174,7 @@ public class Saint {
     public static Saint generateSaint(List<SaintSuit> saintSuitList) {
         int pos = RANDOM.nextInt(5);
         PropertyEnum mainPropertyEnum = randomChooseProperty(MAIN_PROPERTIES_WEIGHT.get(pos), null);
-        double value;
-        if (mainPropertyEnum.equals(PropertyEnum.HP)) {
-            value = FLOWER_MAIN_VALUE_MIN;
-        } else {
-            value = SUB_PROPERTIES_RATIO.getOrDefault(mainPropertyEnum, 1.5) * BASIC_MAIN_VALUE_MIN;
-            if (mainPropertyEnum.equals(PropertyEnum.ATK)) {
-                value *= 2;
-            }
-        }
+        double value = MAIN_PROPERTIES_VALUE_0.get(mainPropertyEnum);
 
         Property mainProperty = new Property(mainPropertyEnum, value);
         List<Property> subProperties = new ArrayList<>();
@@ -191,14 +212,10 @@ public class Saint {
         if (lvup) {
             this.level += 4;
         }
-        if (this.mainProperty.getProperty().equals(PropertyEnum.HP)) {
-            this.mainProperty.setValue(FLOWER_MAIN_VALUE_MIN + this.level * FLOWER_MAIN_VALUE_LEVEL);
-        } else {
-            this.mainProperty.setValue((BASIC_MAIN_VALUE_MIN + this.level * BASIC_MAIN_VALUE_LEVEL) *
-                    SUB_PROPERTIES_RATIO.getOrDefault(this.mainProperty.getProperty(), 1.5));
-            if (this.mainProperty.getProperty().equals(PropertyEnum.ATK)) {
-                this.mainProperty.setValue(this.mainProperty.getValue() * 2);
-            }
+        if (lvup) {
+            this.mainProperty.setValue(MAIN_PROPERTIES_VALUE_0.get(this.mainProperty.getProperty()) +
+                    0.05 * this.level * (MAIN_PROPERTIES_VALUE_20.get(this.mainProperty.getProperty()) -
+                            MAIN_PROPERTIES_VALUE_0.get(this.mainProperty.getProperty())));
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -207,7 +224,7 @@ public class Saint {
             Set<PropertyEnum> properties = this.subProperties.stream().map(Property::getProperty).collect(Collectors.toSet());
             properties.add(this.mainProperty.getProperty());
             PropertyEnum subPropertyEnum = randomChooseProperty(SUB_PROPERTIES_WEIGHT, properties);
-            double value = BASIC_SUB_VALUE[RANDOM.nextInt(4)] * SUB_PROPERTIES_RATIO.get(subPropertyEnum);
+            double value = SUB_PROPERTIES_VALUE.get(subPropertyEnum).get(RANDOM.nextInt(4));
             this.subProperties.add(new Property(subPropertyEnum, value));
             stringBuilder.append(subPropertyEnum.getName())
                     .append("\t    \t->\t")
@@ -220,7 +237,7 @@ public class Saint {
                 weightMap.put(subProperty.getProperty(), 1);
             }
             PropertyEnum subPropertyEnum = randomChooseProperty(weightMap, null);
-            double value = BASIC_SUB_VALUE[RANDOM.nextInt(4)] * SUB_PROPERTIES_RATIO.get(subPropertyEnum);
+            double value = SUB_PROPERTIES_VALUE.get(subPropertyEnum).get(RANDOM.nextInt(4));
             for (Property subProperty : this.subProperties) {
                 if (subProperty.getProperty().equals(subPropertyEnum)) {
                     stringBuilder.append(subPropertyEnum.getName())
