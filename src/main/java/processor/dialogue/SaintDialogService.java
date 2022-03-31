@@ -30,22 +30,35 @@ import java.util.regex.Matcher;
 @Slf4j
 public class SaintDialogService {
 
-    private static final String SAINT_SCORE_HELP_RESPONSE = "\n(请复制本消息并填写【完整副词条】信息，发送回群中)\n"
+    private static final String SAINT_SCORE_HELP_RESPONSE = "\n(请复制本消息并删除到【实际副词条】信息，发送回群中)\n"
             + "【圣遗物评分】\n"
             + "位置：花\n"
             + "等级：20\n"
-            + "暴击率：0%";
+            + "暴击率：0%\n"
+            + "暴击伤害：0%\n"
+            + "...(请补全全部词条)";
     private static final String SAINT_SCORE_RESULT = "双暴攻击：%.1f\n"
+            + "百分制分数：%.2f\n"
             + "%s(+%d)分位：%s%%\n"
             + "圣遗物价值：%s体力\n"
-            + "评级：%s";
-    private static final String SAINT_SCORE_RESULT_RESPONSE = "\n【评分结果】\n"
+            + "评级：%s%s";
+    private static final String SAINT_SCORE_RESULT_RESPONSE = "\n【圣遗物详情】\n"
+            + "%s\n"
+            + "----------\n"
+            + "【评分结果】\n"
             + "%s\n"
             + "----------\n"
             + "(注1：本评分系统仅适用于常规攻击+双爆输出模型，3、4、5号位要求主属性为：攻击|元素伤害|双暴)\n"
             + "(注2：双暴攻击公式：S = 暴击率*2 + 暴击伤害 + 大攻击 + 小攻击*0.15)";
     private static final String[] POS_DETAIL = new String[] {"生之花", "死之羽", "时之沙", "空之杯", "理之冠"};
-//    private static final double[] MAX_SCORE = new double[] {63.05, 60.2, 57.25, 63.05, 55.25};
+    private static final double[][] MAX_SCORE = new double[][] {
+            {50.0628125, 47.2128125, 44.2628125, 50.0628125, 42.2628125},
+            {52.70025,   49.85025,   46.90025,   52.70025,   44.90025},
+            {55.3376875, 52.4876875, 49.5376875, 55.3376875, 47.5376875},
+            {57.975125,  55.125125,  52.175125,  57.975125,  50.175125},
+            {60.6125625, 57.7625625, 54.8125625, 60.6125625, 52.8125625},
+            {63.15,      60.3,       57.35,      63.15,      55.25}
+    };
     private static final Random RANDOM = new Random();
     private static final String SAINT_PIC_DIR = "./pics/saint/";
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH");
@@ -82,20 +95,20 @@ public class SaintDialogService {
                     }
                 } else if (parts[0].contains("防御")) {
                     if (parts[0].contains("比") || parts[0].startsWith("大") || parts[1].endsWith("%")) {
-                        saint.getSubProperties().add(new Property(PropertyEnum.DEF_RATIO, 0));
+                        saint.getSubProperties().add(new Property(PropertyEnum.DEF_RATIO, Double.parseDouble(parts[1].replace("%", ""))));
                     } else {
-                        saint.getSubProperties().add(new Property(PropertyEnum.DEF, 0));
+                        saint.getSubProperties().add(new Property(PropertyEnum.DEF, Double.parseDouble(parts[1])));
                     }
                 } else if (parts[0].contains("生命")) {
                     if (parts[0].contains("比") || parts[0].startsWith("大") || parts[1].endsWith("%")) {
-                        saint.getSubProperties().add(new Property(PropertyEnum.HP_RATIO, 0));
+                        saint.getSubProperties().add(new Property(PropertyEnum.HP_RATIO, Double.parseDouble(parts[1].replace("%", ""))));
                     } else {
-                        saint.getSubProperties().add(new Property(PropertyEnum.HP, 0));
+                        saint.getSubProperties().add(new Property(PropertyEnum.HP, Double.parseDouble(parts[1])));
                     }
                 } else if (parts[0].contains("精通")) {
-                    saint.getSubProperties().add(new Property(PropertyEnum.EM, 0));
+                    saint.getSubProperties().add(new Property(PropertyEnum.EM, Double.parseDouble(parts[1])));
                 } else if (parts[0].contains("充能")) {
-                    saint.getSubProperties().add(new Property(PropertyEnum.ENERGY, 0));
+                    saint.getSubProperties().add(new Property(PropertyEnum.ENERGY, Double.parseDouble(parts[1].replace("%", ""))));
                 } else if (parts[0].contains("伤")) {
                     saint.getSubProperties().add(new Property(PropertyEnum.CRITICAL_DMG, Double.parseDouble(parts[1].replace("%", ""))));
                 } else if (parts[0].contains("暴")) {
@@ -103,7 +116,7 @@ public class SaintDialogService {
                 }
             }
             SaintHelper.score(saint);
-            String response = String.format(SAINT_SCORE_RESULT_RESPONSE, getScoreString(saint));
+            String response = String.format(SAINT_SCORE_RESULT_RESPONSE, saint.toString(), getScoreString(saint));
             return EmptyMessageChain.INSTANCE.plus(response);
         } catch (Exception e) {
             log.error("Saint score error", e);
@@ -403,11 +416,13 @@ public class SaintDialogService {
         }
         return String.format(SAINT_SCORE_RESULT,
                 score.getScore(),
+                100 * (score.getScore() + score.getLevelScore()) / MAX_SCORE[saint.getLevel() / 4][saint.getPos()],
                 POS_DETAIL[saint.getPos()],
                 saint.getLevel(),
                 ratioString,
                 valueString,
-                score.getLevel()
+                score.getLevel(),
+                saint.getName() == null && saint.getLevel() == 20 ? ("\n评价：" + score.getLevelComment()) : ""
         );
     }
 

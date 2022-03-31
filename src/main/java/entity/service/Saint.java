@@ -27,11 +27,10 @@ public class Saint {
     public static final String[] POSITION_NAME = new String[] {"生之花", "死之羽", "时之沙", "空之杯", "理之冠"};
     public static final Map<PropertyEnum, Integer> SUB_PROPERTIES_WEIGHT = new HashMap<>();
     public static final Map<PropertyEnum, Double> MAIN_PROPERTIES_VALUE_0 = new HashMap<>();
+    public static final Map<PropertyEnum, Double> MAIN_PROPERTIES_VALUE_20 = new HashMap<>();
 
     private static final List<Map<PropertyEnum, Integer>> MAIN_PROPERTIES_WEIGHT = new ArrayList<>();
     private static final Map<PropertyEnum, List<Double>> SUB_PROPERTIES_VALUE = new HashMap<>();
-    private static final Map<PropertyEnum, Double> MAIN_PROPERTIES_VALUE_20 = new HashMap<>();
-
     private static final Random RANDOM = new Random();
 
     private int pos;
@@ -294,8 +293,8 @@ public class Saint {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(this.name)
-                .append("   [")
+        stringBuilder.append(this.name == null ? "" : (this.name + "   "))
+                .append("[")
                 .append(POSITION_NAME[this.pos])
                 .append(" +")
                 .append(this.level)

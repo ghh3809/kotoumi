@@ -15,5 +15,6 @@ public class SaintScore {
     private double ratio;
     private long value;
     private String level;
+    private String levelComment;
 
 }

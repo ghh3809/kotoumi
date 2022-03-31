@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -101,12 +102,14 @@ public class SaintHelper {
         double ratio = getRatio(saint.getLevel(), score + levelScore, saint.getPos());
         long value = getValue(ratio);
         String level = getLevel(ratio);
+        String levelComment = getLevelComment(ratio);
         SaintScore saintScore = new SaintScore(
                 score,
                 levelScore,
                 ratio,
                 value,
-                level
+                level,
+                levelComment
         );
         saint.setSaintScore(saintScore);
         return saintScore;
@@ -171,13 +174,15 @@ public class SaintHelper {
                 default:
                     mainPropertyEnum = null;
             }
-            saint.setMainProperty(new Property(mainPropertyEnum, Saint.MAIN_PROPERTIES_VALUE_0.get(mainPropertyEnum)));
+            saint.setMainProperty(new Property(mainPropertyEnum, Saint.MAIN_PROPERTIES_VALUE_0.get(mainPropertyEnum) +
+                    0.05 * saint.getLevel() * (Saint.MAIN_PROPERTIES_VALUE_20.get(mainPropertyEnum) -
+                            Saint.MAIN_PROPERTIES_VALUE_0.get(mainPropertyEnum))));
         }
         if (!USEFUL_MAIN_PROPERTIES.get(saint.getPos()).contains(saint.getMainProperty().getProperty())) {
             return -1;
         }
 
-        if (saint.getSubProperties().size() == 3) {
+        if (saint.getLevel() == 0 && saint.getSubProperties().size() == 3) {
             int totalWeight = 0;
             for (Map.Entry<PropertyEnum, Integer> entry : Saint.SUB_PROPERTIES_WEIGHT.entrySet()) {
                 PropertyEnum propertyEnum = entry.getKey();
@@ -277,6 +282,41 @@ public class SaintHelper {
             level = "SS+++";
         }
         return level;
+    }
+
+    /**
+     * 获取等级评论
+     * @param ratio 比例
+     * @return 等级评论
+     */
+    public static String getLevelComment(double ratio) {
+        String[] levelString;
+        if (ratio < 50) {
+            levelString = new String[]{"嗯嗯嗯是是是挺好挺好（敷衍）", "我的建议是，丢了！", "喂了都不带心疼的", "三合一绝佳材料", "不及格！", "您就是班尼特本人吧？"};
+        } else if (ratio < 80) {
+            levelString = new String[]{"不错的狗粮", "建议换一个", "角色看了都嫌弃"};
+        } else if (ratio < 90) {
+            levelString = new String[]{"下次，一定能出！", "进步空间还非常大", "只能说勉强及格了"};
+        } else if (ratio < 95) {
+            levelString = new String[]{"勉勉强强", "可以过渡用，大概"};
+        } else if (ratio < 99) {
+            levelString = new String[]{"还可以，希望再超越一下自己", "中规中矩的输出圣遗物", "达成成就【合格圣遗物】"};
+        } else if (ratio < 99.9) {
+            levelString = new String[]{"已经是小毕业水平了！", "很好，很有精神！", "以普遍理性而论，很好", "算是个很不错的圣遗物了！"};
+        } else if (ratio < 99.99) {
+            levelString = new String[]{"这就是大佬吗？", "可以算大毕业了！", "达成成就【优质圣遗物】", "我也想拥有这样的圣遗物"};
+        } else if (ratio < 99.999) {
+            levelString = new String[]{"？？？？", "我怀疑你是来晒的", "欧吃矛！", "旅行者祈愿全保底，旅行者副本零掉落", "这河里吗", "一定是游戏的问题"};
+        } else if (ratio < 99.9999) {
+            levelString = new String[]{"勇闯无人区", "这样的圣遗物大概只能在别人包里看到", "你以后的调查怕不是只有卷心菜"};
+        } else if (ratio < 99.99999) {
+            levelString = new String[]{"吃了吗？没吃的话，吃我一拳", "你肯定是来晒的，我现在有充足的证据", "没用，建议融了（柠檬脸）", "拿着中彩票的运气强化了圣遗物"};
+        } else if (ratio < 99.999999) {
+            levelString = new String[]{"千……千万分之一？", "我不信我不信我不信", "你是骗我的对不对"};
+        } else {
+            levelString = new String[]{"你肯定是乱输的，是不是被我猜中了", "抹布要被玩坏啦！"};
+        }
+        return levelString[new Random().nextInt(levelString.length)];
     }
 
 }
