@@ -164,15 +164,13 @@ public class Dao {
 
     /**
      * 根据日期和ID查找签到情况
-     * @param groupId 群ID
      * @param userId 用户ID
      * @param day 日期
      * @return 签到情况
      */
-    public static Daily findDailyById(long groupId, long userId, String day) {
+    public static Daily findDailyById(long userId, String day) {
         try (SqlSession session = SQL_MAPPER.openSession()) {
             HashMap<String, Object> hashMap = new HashMap<>();
-            hashMap.put("groupId", groupId);
             hashMap.put("userId", userId);
             hashMap.put("day", day);
             return session.selectOne("findDailyById", hashMap);

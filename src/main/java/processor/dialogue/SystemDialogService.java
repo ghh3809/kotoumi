@@ -157,10 +157,10 @@ public class SystemDialogService {
 
         // 获取当前daily
         String day = SIMPLE_DATE_FORMAT.format(new Date());
-        Daily daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+        Daily daily = Dao.findDailyById(request.getFrom(), day);
         if (daily == null) {
             Dao.addDaily(request.getGroup().getId(), request.getFrom());
-            daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+            daily = Dao.findDailyById(request.getFrom(), day);
         }
 
         // 签到
@@ -222,10 +222,10 @@ public class SystemDialogService {
 
         // 获取当前daily
         String day = SIMPLE_DATE_FORMAT.format(new Date());
-        Daily daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+        Daily daily = Dao.findDailyById(request.getFrom(), day);
         if (daily == null) {
             Dao.addDaily(request.getGroup().getId(), request.getFrom());
-            daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+            daily = Dao.findDailyById(request.getFrom(), day);
         }
 
         // 抽签
@@ -255,10 +255,10 @@ public class SystemDialogService {
 
         // 获取当前daily
         String day = SIMPLE_DATE_FORMAT.format(new Date());
-        Daily daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+        Daily daily = Dao.findDailyById(request.getFrom(), day);
         if (daily == null) {
             Dao.addDaily(request.getGroup().getId(), request.getFrom());
-            daily = Dao.findDailyById(request.getGroup().getId(), request.getFrom(), day);
+            daily = Dao.findDailyById(request.getFrom(), day);
         }
 
         // 占卜

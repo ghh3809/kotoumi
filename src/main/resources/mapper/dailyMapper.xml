@@ -8,8 +8,7 @@
     <select id="findDailyById" resultType="entity.service.Daily">
         select *
         from kotoumi_daily
-        where group_id = #{groupId}
-          and user_id = #{userId}
+        where user_id = #{userId}
           and date(create_time) = #{day}
     </select>
 
