@@ -104,3 +104,11 @@ CREATE TABLE `kotoumi_genshin_saint_wish` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi机器人圣遗物祈愿结果';
 
+CREATE TABLE `kotoumi_genshin_manage_user` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增id',
+    `username` varchar(64) NOT NULL COMMENT '用户名',
+    `password` varchar(64) NOT NULL COMMENT '密码',
+    `qq_number` varchar(20) NOT NULL COMMENT 'qq号',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='kotoumi管理员表';
+
