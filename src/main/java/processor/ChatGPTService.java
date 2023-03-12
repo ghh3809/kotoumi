@@ -57,7 +57,16 @@ public class ChatGPTService {
         // 请求unit服务
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Authorization", String.format("Bearer %s", CHATGPT_TOKEN));
-        String response = RequestHelper.httpPost(OPENAI_URL, chatGPTRequest, headerMap);
+        int retry = 0;
+        String response = null;
+        while (retry < 3) {
+            retry ++;
+            response = RequestHelper.httpPost(OPENAI_URL, chatGPTRequest, headerMap);
+            if (response != null) {
+                break;
+            }
+        }
+
         if (response != null) {
             ChatGPTResponse chatGPTResponse = JSON.parseObject(response, ChatGPTResponse.class);
             if (chatGPTResponse.getChoices() != null && !chatGPTResponse.getChoices().isEmpty()) {
