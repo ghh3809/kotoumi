@@ -51,7 +51,7 @@ public class MapperTest {
         Dao.updateDailySignIn(199188177L, 1020304050L, "2020-11-09", 3);
         Dao.updateDailyDivine(199188177L, 1020304050L, "2020-11-09", 4);
         Dao.updateDailyDraw(199188177L, 1020304050L, "2020-11-09", 2);
-        log.info(JSON.toJSONString(Dao.findDailyById(199188177L, 1020304050L, "2020-11-09")));
+        log.info(JSON.toJSONString(Dao.findDailyById(199188177L, "2020-11-09")));
     }
 
     @Test

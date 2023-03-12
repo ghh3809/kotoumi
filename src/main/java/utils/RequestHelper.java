@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -18,6 +20,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import processor.ChatGPTService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -99,10 +102,10 @@ public class RequestHelper {
      * 发送post请求
      * @param url url
      * @param request 请求
-     * @param header 请求头
+     * @param headerMap 请求头
      * @return 请求结果
      */
-    public static String httpPost(String url, Request request, Header header) {
+    public static String httpPost(String url, Request request, Map<String, String> headerMap) {
 
         if (StringUtils.isBlank(url)) {
             log.error("httpPost URL is blank!");
@@ -115,7 +118,7 @@ public class RequestHelper {
 
         log.info("httpPost URL: {}", url);
         log.info("httpPost request: {}", JSON.toJSONString(request));
-        log.info("httpPost headers: {}", JSON.toJSONString(header));
+        log.info("httpPost headers: {}", JSON.toJSONString(headerMap));
 
         try {
             CloseableHttpClient client = null;
@@ -124,13 +127,21 @@ public class RequestHelper {
 
                 HttpPost httpPost = new HttpPost(url);
                 httpPost.setHeader(HTTP.CONTENT_TYPE, "application/json");
-                if (header != null) {
-                    httpPost.setHeader(header);
+                if (headerMap != null) {
+                    for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+                        httpPost.addHeader(entry.getKey(), entry.getValue());
+                    }
                 }
                 httpPost.setEntity(new StringEntity(JSON.toJSONString(request),
                         ContentType.create("text/json", "UTF-8")));
 
-                client = HttpClients.createDefault();
+                HttpHost proxy = new HttpHost("127.0.0.1", 7890);
+                if (url.equals(ChatGPTService.OPENAI_URL)) {
+                    RequestConfig defaultRequestConfig = RequestConfig.custom().setProxy(proxy).build();
+                    client = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
+                } else {
+                    client = HttpClients.createDefault();
+                }
                 response = client.execute(httpPost);
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);

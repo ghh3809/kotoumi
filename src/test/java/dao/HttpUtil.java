@@ -1,5 +1,7 @@
 package dao;
 
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.data.EmptyMessageChain;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
+import utils.ConfigHelper;
 import utils.WishHelper;
 
 import java.io.File;
@@ -26,7 +27,6 @@ import java.util.regex.Matcher;
 @Slf4j
 public class WishDialogService {
 
-    private static final long ADMIN_QQ = 1146875163L;
     private static final String PROB_RESPONSE = "模拟抽卡概率遵循以下原则：\n"
             + "----------\n"
             + "【标准/常驻/角色up池】\n"
@@ -238,7 +238,7 @@ public class WishDialogService {
      */
     public static MessageChain addPrimogems(Request request, Matcher matcher) {
         log.info("Add Primogems found");
-        if (request.getFrom() != ADMIN_QQ) {
+        if (request.getFrom() != ConfigHelper.ADMIN_QQ) {
             return EmptyMessageChain.INSTANCE.plus("无权访问！");
         }
         long userId = Long.parseLong(matcher.group(1));

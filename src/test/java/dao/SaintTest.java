@@ -7,6 +7,7 @@ import entity.service.Saint;
 import entity.service.SaintSuit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import processor.ChatGPTService;
 import utils.SaintHelper;
 
 import java.util.ArrayList;
@@ -80,6 +81,12 @@ public class SaintTest {
     @Test
     public void testUnit() {
         log.info(utterance());
+    }
+
+    @Test
+    public void testChatGPT() {
+        String result = ChatGPTService.dialog("123", "hello");
+        log.info(result);
     }
 
     private String utterance() {

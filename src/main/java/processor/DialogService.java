@@ -16,6 +16,7 @@ import processor.dialogue.SifDialogService;
 import processor.dialogue.SystemDialogService;
 import processor.dialogue.UtilDialogService;
 import processor.dialogue.WishDialogService;
+import utils.ConfigHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -309,7 +310,12 @@ public class DialogService {
             if (StringUtils.isBlank(request.getQuery())) {
                 return EmptyMessageChain.INSTANCE.plus(DEFAULT_REPLY[RANDOM.nextInt(DEFAULT_REPLY.length)]);
             }
-            String response = UnitService.dialog(getUserId(request), request.getQuery());
+            String response;
+            if (request.getFrom() == ConfigHelper.ADMIN_QQ) {
+                response = ChatGPTService.dialog(getUserId(request), request.getQuery());
+            } else {
+                response = UnitService.dialog(getUserId(request), request.getQuery());
+            }
             if (response != null) {
                 return EmptyMessageChain.INSTANCE.plus(response);
             } else {

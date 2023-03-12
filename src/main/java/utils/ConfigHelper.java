@@ -11,6 +11,8 @@ import java.util.Properties;
 @Slf4j
 public class ConfigHelper {
 
+    public static final long ADMIN_QQ = 1146875163L;
+
     private static Properties properties;
 
     static {

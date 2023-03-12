@@ -32,3 +32,4 @@ src/main/resources/config.properties
 src/main/java/loader/JavaLoader.java
 .idea/
 .DS_Store
+src/main/resources/chatgpt.token
