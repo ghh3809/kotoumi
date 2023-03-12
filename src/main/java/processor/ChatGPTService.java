@@ -5,6 +5,7 @@ import entity.request.ChatGPTRequest;
 import entity.response.ChatGPTResponse;
 import entity.service.GPTMessage;
 import lombok.extern.slf4j.Slf4j;
+import utils.ConfigHelper;
 import utils.FileHelper;
 import utils.RequestHelper;
 
@@ -24,17 +25,6 @@ public class ChatGPTService {
     public static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
     private static final Map<String, SessionStatus> SESSION_STATUS_MAP = new ConcurrentHashMap<>();
     private static final int MAX_SESSION_TIME = 300000;
-
-    private static final String CHATGPT_TOKEN;
-
-    static {
-        List<String> tokens = FileHelper.readLines(new File("chatgpt.token"));
-        if (tokens != null && !tokens.isEmpty()) {
-            CHATGPT_TOKEN = tokens.get(0);
-        } else {
-            CHATGPT_TOKEN = "";
-        }
-    }
 
     /**
      * 进行UNIT闲聊对话
@@ -56,7 +46,7 @@ public class ChatGPTService {
 
         // 请求unit服务
         Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Authorization", String.format("Bearer %s", CHATGPT_TOKEN));
+        headerMap.put("Authorization", String.format("Bearer %s", ConfigHelper.getProperties("gpt_key")));
         int retry = 0;
         String response = null;
         while (retry < 3) {

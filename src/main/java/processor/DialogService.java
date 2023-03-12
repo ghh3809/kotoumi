@@ -311,7 +311,7 @@ public class DialogService {
                 return EmptyMessageChain.INSTANCE.plus(DEFAULT_REPLY[RANDOM.nextInt(DEFAULT_REPLY.length)]);
             }
             String response;
-            if (request.getFrom() == ConfigHelper.ADMIN_QQ) {
+            if (request.getMessageSource().equals(MessageSource.GROUP) && request.getFrom() == ConfigHelper.ADMIN_QQ) {
                 response = ChatGPTService.dialog(getUserId(request), request.getQuery());
             } else {
                 response = UnitService.dialog(getUserId(request), request.getQuery());

@@ -84,4 +84,10 @@ public class MapperTest {
         log.info(JSON.toJSONString(FileHelper.readLines(file)));
     }
 
+    @Test
+    public void testFile2() {
+        String response = RequestHelper.httpGet("https://aip.baidubce.com/oauth/2.0/token?grant_type=1&client_id=2&client_secret=3", null);
+        log.info(response);
+    }
+
 }
