@@ -30,8 +30,17 @@ public class ChatGPTRequest extends Request {
     public static ChatGPTRequest getInstance(String query, LinkedList<GPTMessage> messages) {
         ChatGPTRequest chatGPTRequest = new ChatGPTRequest();
         chatGPTRequest.model = "gpt-3.5-turbo";
-        chatGPTRequest.maxTokens = 256;
-        messages.add(new GPTMessage(ROLE_USER, query));
+        chatGPTRequest.maxTokens = 1024;
+        if (!messages.isEmpty()) {
+            GPTMessage lastMessage = messages.getLast();
+            if (lastMessage.getRole().equals(ROLE_USER)) {
+                lastMessage.setContent(query);
+            } else {
+                messages.add(new GPTMessage(ROLE_USER, query));
+            }
+        } else {
+            messages.add(new GPTMessage(ROLE_USER, query));
+        }
         if (messages.size() > 8) {
             messages.remove(0);
             messages.remove(0);

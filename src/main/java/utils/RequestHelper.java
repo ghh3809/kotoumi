@@ -138,7 +138,7 @@ public class RequestHelper {
                 HttpHost proxy = new HttpHost("127.0.0.1", 7890);
                 if (url.equals(ChatGPTService.OPENAI_URL)) {
                     RequestConfig defaultRequestConfig = RequestConfig.custom()
-                            .setConnectTimeout(1000).setSocketTimeout(10000).setProxy(proxy).build();
+                            .setConnectTimeout(1000).setSocketTimeout(20000).setProxy(proxy).build();
                     client = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
                 } else {
                     client = HttpClients.createDefault();
